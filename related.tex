@@ -1,0 +1,62 @@
+\section{Releated Work}\label{sec:related}
+The idea that all level-3 BLAS operations can be built upon
+a high-performance GEMM implemention was first proposed
+in~\cite{gemmbased1,gemmbased2}.
+The GotoBLAS library~\cite{gotoblas}, and its successor OpenBLAS~\cite{openblas},
+are instantiated based on this insight.
+So optimizing GEMM has always been the central task in developing
+dense linear algebra software.
+The GEMM optimization has two aspects.
+One is developing fast computation kernels and
+the other is choosing a proper overall strategy
+to optimize memory access.
+
+%% Broadly speaking, there are two aspects of this task,
+%% developing fast computation kernels and optimizing memory access.
+%% The former corresponds the to the kernel component and
+%% the latter is the target of overall strategies.
+
+There are several approaches for obtaining optimized GEMM kernels,
+%% (1) assembly programming, (2) auto-tuning, and (3) directive-based programming,
+yielding different tradeoffs between performance and portability.
+In GotoBLAS~\cite{gotoblas}, OpenBLAS~\cite{openblas} and BLIS~\cite{blis},
+the kernel component of GEMM are written by domain experts in assembly.
+In the case of auto-tuning,
+ATLAS~\cite{atlas} adopts the auto-tuning method to
+automatically generate kernels with different parameters
+in C and find the best-performing one by running them
+on the actual computing system.
+POET~\cite{poet,poetcgo,poetmicro} and AUGEM~\cite{augem} uses a 
+directive-based programming approache.
+Given a GEMM kernel in C, POET inserts annotations into
+the C code to direct source-to-source compiler transformations.
+AUGEM uses a template-based method to match
+predefined patterns in the C code and transforms the matched
+C code sequence into an optimized assembly code sequence.
+\textsc{Poca}~\cite{poca} leverages a wide range of architecture-specific
+abstractions available in the LLVM compiler infrastructure
+and proposes a series of domain-specific yet architecture-independent optimizations
+to obtain high-performance kernels in a portable way.
+
+The overall strategy of GEMM mainly concerns about
+tiling factors, loop orders and parallelization.
+The tiling factors $M_r$, $N_r$, $M_c$, $N_c$ and $K_c$
+are essential to GEMM performance.
+ATLAS~\cite{atlas} relies on auto-tuning to determine optimal
+values for these factors.
+Analytic techniques~\cite{analytic1,analytic2,blisanalytic} are
+can also be used instead of auto-tuning.
+These analytic methods generally take into consideration
+the cache capacity and associativity
+but assume a LRU replacement policy.
+As far as we know, this paper is the first to
+address the problem of cache sharing with non-LRU replacement policies,
+and SCP serves as the first proposal to handle this problem.
+\cite{gotogemm} gives a detailed discussion of different looping orders.
+GEMM are usually parallelized only on layer 3 (the M loop),
+but all loops along the M and N dimensions are potentially parallelizable.
+BLIS\cite{blispar} allows the users to specify a sophisticated configuration
+that more than one loops of layer 1, 3, 4 and 5
+can be simultaneously parallelized.
+This nested parallelization can better fit complex architecture features
+like multi-sockets and hyperthreading. 

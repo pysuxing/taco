@@ -1,0 +1,29 @@
+\begin{abstract}
+  GEneral Matrix Multiply (GEMM) is the most fundamental
+  computational kernel routine in BLAS library.
+  To achieve best performance, in-memory data must be
+  prefetched into fast on-chip caches ahead of use.
+  Two techniques, software prefetching and data packing,
+  are utilized to effectively exploit the capability of on-chip caches.
+  These techniques are sufficient for lastly-recent-used (LRU) caches,
+  which is often the case in traditional high-performance
+  processors used in high-end servers and supercomputers.
+  But in recent years the market is meeting a diversity
+  in processor design, and some high-performance processors
+  are equipped with shared caches with non-LRU replacement policies.
+  This rises a challenge to GEMM development in multi-threaded context.
+  As several threads try to load data into the shared cache simultaneously,
+  inter-thread cache conflicts would increase significantly.
+  We present a Shared Cache Partition (SCP) method to
+  eliminate inter-thread cache conflicts in GEMM routines,
+  by partitioning the shared cache into physically disjoint
+  sets and assign different sets to different threads.
+  We implement SCP in the OpenBLAS library and
+  evaluate the performance on Phytium 2000+,
+  a 64-core AArch64 processor with private LRU L1 caches
+  and shared (by every 4 cores) psudo-random L2 caches.
+  The results show that conflict misses on both L1 and L2
+  caches are effectively reduced and GEMM performance get improved
+  by $2.75\%$--$6.91\%$.
+  %% FIXME BLIS? FT1500A?
+\end{abstract}
