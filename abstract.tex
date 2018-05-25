@@ -1,20 +1,20 @@
 \begin{abstract}
   GEneral Matrix Multiply (GEMM) is the most fundamental
-  computational kernel routine in BLAS library.
-  To achieve best performance, in-memory data must be
-  prefetched into fast on-chip caches ahead of use.
+  computational kernel routine in the BLAS library.
+  To achieve high performance, in-memory data must be
+  prefetched into fast on-chip caches before they are used.
   Two techniques, software prefetching and data packing,
   are utilized to effectively exploit the capability of on-chip caches.
   These techniques are sufficient for lastly-recent-used (LRU) caches,
-  which is often the case in traditional high-performance
-  processors used in high-end servers and supercomputers.
-  But in recent years the market is meeting a diversity
-  in processor design, and some high-performance processors
-  are equipped with shared caches with non-LRU replacement policies.
-  This rises a challenge to GEMM development in multi-threaded context.
+  which are often used in high-performance
+  processors deployed in high-end servers and supercomputers.
+  But in recent years the market has become increasingly more diverse
+  in processor design, resulting in high-performance processors
+  equipped with shared caches with non-LRU replacement policies.
+  This poses a challenge to GEMM development in a multi-threaded context.
   As several threads try to load data into the shared cache simultaneously,
-  inter-thread cache conflicts would increase significantly.
-  We present a Shared Cache Partition (SCP) method to
+  inter-thread cache conflicts will increase significantly.
+  We present a Shared Cache Partitioning (SCP) method to
   eliminate inter-thread cache conflicts in GEMM routines,
   by partitioning the shared cache into physically disjoint
   sets and assign different sets to different threads.
@@ -23,7 +23,6 @@
   a 64-core AArch64 processor with private LRU L1 caches
   and shared (by every 4 cores) psudo-random L2 caches.
   The results show that conflict misses on both L1 and L2
-  caches are effectively reduced and GEMM performance get improved
-  by $2.75\%$--$6.91\%$.
-  %% FIXME BLIS? FT1500A?
+  caches are effectively reduced, resulting in an improvement
+  of the GEMM performance by $2.75\%$--$6.91\%$.
 \end{abstract}

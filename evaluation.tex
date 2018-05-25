@@ -8,16 +8,16 @@ The 64 cores are organized into 16 clusters with each
 cluster containing 4 cores.
 The structure of the cluster is almost the same with
 the contrived 4-core processor in Figure.~\ref{fig:hierachy}
-except that all 16 clusters connect to the main memory
-with their L2 caches coherented by hardare.
-See Table.~\ref{tab:cluster} for architectural parameters of the cores and caches.
+except that L2 caches of all 16 clusters connect to the main memory
+with hardware coherence.
+Table.~\ref{tab:cluster} lists architectural parameters of the cores and caches.
 We restrict our evaluation to DGEMM,
 as in prior work~\cite{blispar,augem,poetmicro}, for two reasons.
 First, the basic idea behind SCP applies to other
 variants of GEMM such as SGEMM, CGEMM and ZGEMM.
 Second, the LINPACK benchmark, which is used to build the
 TOP500 list of world's most powerful supercomputers (FIXME citation),
-relys on the DGEMM variant.
+relies on the DGEMM variant.
 
 All evaluations run with the same tiling factors
 $M_r$, $N_r$, $K_c$, $M_c$ and $N_c$.
@@ -29,7 +29,7 @@ and the number of active threads per cluster $NT_C$.
 The total number of threads is $NT = NC \cdot NT_C$.
 For the Phytium 2000+ processor, the valid ranges for $NC$ and $NT_C$
 are $NC \in [1, 16]$ and $NT_C \in [1, 4]$, respectively.
-Generally, DGEMM performance are presented in $flops$.
+Generally, DGEMM performance is presented in $flops$.
 %% floating-point operations per second ($flops$).
 As $NT$ varies in our evaluation,
 we use another metric derived from $flops$,
@@ -42,9 +42,9 @@ in which $\widehat{flops}$ stands for the theoretical performance peak of a sing
 %%   E = flops / (NT \cdot \widehat{flops})
 %% \end{equation*}
 
-We first show how cache sharing can harm GEMM performance
+We first show how cache sharing can hurt GEMM performance
 in Section~\ref{subsec:drawback}.
-Then Section~\ref{subsec:benefit} demonstrates how SCP can remedy
+Then Section~\ref{subsec:benefit} demonstrates how SCP can reduce
 the penalty caused by cache sharing.
 Quantitative analysis of the cache miss rates
 is presented in Section~\ref{subsec:analysis}.
@@ -165,7 +165,7 @@ For the purpose of comparation, results without SCP
 
 \begin{table}
   \centering
-  \caption{Average thread efficiency win of SCP}
+  \caption{Average thread efficiency improvement of SCP}
   \label{tab:win}
   \setlength{\tabcolsep}{3.5pt}
   \begin{tabular}{cccccc}
@@ -196,7 +196,7 @@ For the purpose of comparation, results without SCP
 Under all parallelism configurations, 
 SCP performs better than the Base
 consistently over all matrix sizes.
-Table.~\ref{tab:win} summarizes the performance win of SCP over Base.
+Table.~\ref{tab:win} summarizes the performance improvement of SCP over Base.
 %% Table.~\ref{tab:benefit} summarizes the average value
 %% of $E_{avg}$ in SCP evaluation.
 %% There are two values in each cell, separated by a slash.
@@ -335,9 +335,9 @@ And the benefit propagates to upper level caches, too.
 In previous evaluations, SCP only set-partitions the shared cache
 for $A_2$ matrices which are private to threads.
 The shared $B_2$ matrix is still packed
-in conventional way-partition style.
+in conventional way-partitioning style.
 As mentioned in Section~\ref{subsec:example},
-set-partition can also be applied to $B_2$ after $B_2$ is privatized.
+set-partitioning can also be applied to $B_2$ after $B_2$ is privatized.
 In this section, we will discuss and evaluate this privatization alternative.
 
 \begin{figure}

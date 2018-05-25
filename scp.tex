@@ -4,7 +4,7 @@ This section demonstrates the SCP method to handle inter-thread cache conflicts.
 The basic idea is that inter-thread cache conflicts can be eliminated
 if packed matrices used by different threads are fetched to different cache sets.
 In Section~\ref{subsec:example}, we demonstrate SCP by an example.
-Then formal description is given in Section~\ref{subsec:formal}.
+Then a formal description is given in Section~\ref{subsec:formal}.
 
 \subsection{Example}\label{subsec:example}
 
@@ -16,7 +16,7 @@ Various configurations for ($M_r$, $N_r$) can satisfy (\ref{eq:constraints.reg})
 e.g. $(4,8)$, $(8,4)$, $(6,8)$, and $(8,6)$. 
 It takes careful consideration to determine which one is the best,
 and a tuning process may be needed.
-After tuning we got the best values $M_r = 4$ and $N_r = 8$.
+After tuning we obtain the best values $M_r = 4$ and $N_r = 8$.
 By (\ref{eq:constraints.l1}),
 $K_c \le \lfloor c_{L1}/es/nt_{L1}/(N_r + 2 M_r) \rfloor = \lfloor 32KB/8B/1/16 \rfloor = 256$.
 Here we choose $K_c=256$.
@@ -29,8 +29,8 @@ e.g. $192$, $208$ and $224$ are all proper candidates for $M_c$.
 Similar to $M_r$ and $N_r$, a tunning process may be needed to
 find the best value for $M_c$.
 Here we choose $M_c = 192$.
-As there is no L3 cache, (\ref{eq:constraints.l3}) need not to be
-concerned and $N_c$ can be given a large value.
+As there is no L3 cache, (\ref{eq:constraints.l3}) can be ignored
+and $N_c$ can be given a large value.
 Here we choose $N_c = 1024NT = 4096$.
 With tiling factors determined, the sizes of packed matrices
 can be calculated. Table.~\ref{tab:msizes} list the sizes of packed matrices.
@@ -74,16 +74,16 @@ $A_2$ of different threads live in strictly disjoint cache sets,
 and inter-thread cache conflicts caused by $A_2$ are eliminated completely!
 
 Figure.~\ref{fig:partition.conventional} and Figure.~\ref{fig:partition.segmented}
-essentially represent two different partition style of the shared cache,
-refered as way-partition and set-partition, respectively.
-To guarantee the data layout in set-partition,
+essentially represent two different partitioning style of the shared cache,
+refered as way-partitioning and set-partitioning, respectively.
+To guarantee the data layout in set-partitioning,
 $A_2$ cannot be stored in a single continous buffer any more.
 Instead, $A_2$ is distributed to 12 continous memory segments, each of size $32KB$.
-Distance from one segment to the next is equal to $wc_2=128KB$.
+The distance from one segment to the next is equal to $wc_2=128KB$.
 %% There is no memory fragment because the segment size is a multiple of
 %% size of $A_4$ (8KB).
 %% FIXME put this to the end of this section
-While the set-partition of shared caches avoids inter-thread cache conflicts,
+While the set-partitioning of shared caches avoids inter-thread cache conflicts,
 it introduces some complexity to GEMM implementation
 because the GEBP kernel and the matrix packing routines
 now must work with segmented memory buffers instead of continous ones.
@@ -92,8 +92,8 @@ How about $B_2$, the other packed matrix use in GEBP?
 Unlike $A_2$, which is thread private data,
 $B_2$ is shared among all threads and
 the packing of $B_2$ is done collabratively by all threads.
-We have two choices, privatize $B_2$ and apply the set-partition method,
-or fall back to conventional way-partition for $B_2$.
+We have two choices, privatize $B_2$ and apply the set-partitioning method,
+or fall back to conventional way-partitioning for $B_2$.
 $B_2$ can be made thread private if every thread makes
 its own pack of the whole $B_1$ matrix.
 The first choice achieves a full per-thread data isolation
@@ -107,8 +107,9 @@ Given tiling factors $M_r$, $N_r$, $K_c$, $M_c$, $N_c$,
 and architectural details of the memory hierachy,
 The SCP method systematically determines the
 the memory layout for packed matrices $A_2$ and $B_2$ used in GEMM.
-We assume that the share matrix $B_2$ is packed in conventional way-partition style.
-If desired, the $B_2$ can be privatized and handled in the same way as $A_2$.
+We assume that the share matrix $B_2$ is packed
+in conventional way-partitioning style.
+If desired, $B_2$ can be privatized and handled in the same way as $A_2$.
 
 Before diving into details, we make a few assumptions,
 which are standard practice rarely violated,
@@ -131,8 +132,8 @@ $\mathcal{D}_t^M = \{ S_0, S_1, \cdots, S_{N_t^M}\}$.
 %% in which $S_i \bigcap S_j = \phi$ if $i \ne j$.
 A segment is represented by its start and end addresses $S_i = [s_i, e_i)$,
 in which $s_i < e_i \in \mathcal{A}$.
-With way-partition, the memory descriptor contains only one segment.
-With set-partition used in previous section,
+With way-partitioning, the memory descriptor contains only one segment.
+With set-partitioning used in previous section,
 the memory descriptor contains a sequence of equally strided segments.
 
 %% FIXME use l as the level iterator?
@@ -172,8 +173,8 @@ i.e. $\mathcal{D}_i^{A_2} \bigcap \mathcal{D}_j^{A_2} = \phi$ if $i \ne j$.
 The third phase computes memory descriptors for $B_2$.
 Because is $B_2$ is shared among all threads,
 $\mathcal{D}_t^{B_2}$ does not represent the whole $B_2$ matrix,
-but the part (size $\frac{es N_c K_c}{NT}$) which is packed by thread $t$.
-The working flow of these three phases are listed
+but the part (of size $\frac{es N_c K_c}{NT}$) which is packed by thread $t$.
+The working flow of these three phases is listed
 in Algorithm~\ref{alg:scp.phase1} -- \ref{alg:scp.phase3}.
 
 In Algorithm~\ref{alg:scp.phase1},
@@ -185,14 +186,14 @@ extra efforts are made to ensure a proper alignment for $\mathcal{D}_p$.
 Line~\ref{line:align.init}--\ref{line:align.endfor} compute a value $align$,
 and $size_p$ is enlarged to a multile of $align$ (line~\ref{line:align}).
 $align$ is initialized with the L1 cache line size $l_1$.
-Then on each level $l$ (Line~\ref{line:align.for})
-with shared non-LRU caches (Line~\ref{line:align.type}),
+Then on each level $l$ (line~\ref{line:align.for})
+with shared non-LRU caches (line~\ref{line:align.type}),
 $align$ is updated by computing the least-common-multiple of
 original $align$ and $wc_l/nt_l$ (line~\ref{line:align.update}).
 The insight in the $wc_l/nt_l$ value is that
 each way of the level-$l$ cache is equally partitioned among $nt_l$ threads
-in the set-partition of shared caches.
-At last, memory are allocated (line~\ref{line:alloc.begin}--\ref{line:alloc.end})
+in the set-partitioning of shared caches.
+At last, memory is allocated (line~\ref{line:alloc.begin}--\ref{line:alloc.end})
 and buffers $\mathcal{D}_p$ and $\mathcal{D}_s$
 are created (line~\ref{line:d.begin}--\ref{line:d.end}).
 
@@ -266,9 +267,9 @@ The if-else branches (line~\ref{line:if}--\ref{line:endif})
 show two distinct ways to compute $\mathcal{D}_{temp}$.
 If the node is main memory or a LRU cache (line~\ref{line:if}),
 $\mathcal{D}_l^{idx}$ is partitioned in the conventional
-way-partition style.
+way-partitioning style.
 Otherwise, the else branch (line~\ref{line:else}) performs
-a set-partition on $\mathcal{D}_l^{idx}$.
+a set-partitioning on $\mathcal{D}_l^{idx}$.
 Initially, the main memory gets the whole $\mathcal{D}_p$ (line~\ref{line:memory.d})
 and $nt_{NL+1}$ is set to $NT$ (line~\ref{line:memory.nt})
 because the main memory is shared by all threads.
@@ -282,7 +283,7 @@ First, the range of $\mathcal{D}_s$ is obtained
 (line~\ref{line:lb}--\ref{line:ub}) and
 the capacity of $\mathcal{D}_s$ is equally
 divided among $NT$ threads (line~\ref{line:len}).
-Then $\mathcal{D}_s$ is partitioned in a way-partition style
+Then $\mathcal{D}_s$ is partitioned in a way-partitioning style
 and each thread $t$ get buffer space for its part in $B_2$
 (line~\ref{line:thread.for}--\ref{line:thread.forend}).
 

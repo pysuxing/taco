@@ -10,18 +10,18 @@ and level-3 for matrix-matrix operations.
 Processor vendors often provide BLAS implementations
 highly optimized for their processors,
 such as Intel MKL, AMD ACML and NVIDIA cuBLAS.
-The HPC community have also contributed several high-quality
+The HPC community has also contributed several high-quality
 BLAS implementations, e.g. ATLAS~\cite{atlas},
 GotoBLAS~\cite{gotoblas}, OpenBLAS~\cite{openblas},
 and BLIS~\cite{blis}\cite{blisport}.
 
-Among three levels, level-3 provides the most opportunities
+Among the three levels of BLAS routines, level-3 provides the most opportunities
 for optimization because it has the highest computational complexity ($O(n^3)$).
-Among all level-3 operations, GEneral Matrix Multiply (GEMM) is
+Among all the level-3 operations, GEneral Matrix Multiply (GEMM) is
 of the most interest because all other level-3 operations can be defined
 in terms of GEMM and some level-1 and level-2 operations.
-Much effort have been spent on optimizing GEMM for different architectures,
-both in general algorithm and in architecture specific ways.
+Much effort has been spent on optimizing GEMM for different architectures.
+%% both in general algorithm and in architecture specific ways.
 (FIXME citations)
 
 GEMM performs a matrix-multiply-accumulate operation.
@@ -34,20 +34,20 @@ on matrices from a single task.
 The overall strategy partitions the workload by tiling the loops,
 and determines a task schedule by choosing a specific traversal order
 in the loop nest's iteration space.
-In multi-threaded context, different tasks (loop tiles) are assigned to
+In a multi-threaded context, different tasks (loop tiles) are assigned to
 different threads to parallelize the whole operation.
 The main target of GEMM optimization is maximizing the floating-point
 operation throughput, measured by FLoating-point Operations Per Second ($flops$).
 On one hand, optimization of the serial kernel routine concentrates on
 instruction scheduling to improve instruction throughput.
 On the other hand, the overall strategy is responsible for optimizing
-memory accesses to protect the kernel from data hunger.
+memory accesses to protect the kernel from being idling waiting for data.
 In this paper, we focus on optimizing the memory access of GEMM.
 
 Currently, two techniques, software prefetching and data packing,
 are widely adopted in GEMM implementations to speed up memory accesses.
 Software prefetch instructions are utilized
-to load data into cache ahead of use, so memory accesses will not
+to load data into cache before they are used, so memory accesses will not
 cause long latencies and floating-point instructions can execute at peak throughput.
 To better exploit the capability of on-chip caches,
 matrix blocks the kernel operates on will be packed into continous memory buffer
@@ -57,12 +57,12 @@ arithmetic complexity is $O(n^3)$ and memory complexity is $O(n^2)$,
 the overhead caused by data packing is negligible when
 the input matrices are large~\cite{gotogemm}.
 
-The software prefetching and data packing approach meets a challenge
+The software prefetching and data packing approach meet a challenge
 when working on architectures with non-LRU shared caches.
 In traditional high-performance processors, e.g. Intel Xeon series,
 both L1 and L2 caches are private to processor cores
 and LRU replacement policy is adopted.
-Without considering the last level cache (LLC) if presented,
+Without considering the last level cache (LLC),
 threads running on different cores prefetch their data into
 different caches, and private data of different threads
 cannot cause conflict cache misses.
@@ -71,26 +71,26 @@ There are chances that a cache line prefetched by one thread
 get evicted out before its lifetime ends because another thread prefetches
 another cache line into the same cache set.
 A simple solution would be shrinking the size of packed matrix
-so data used by several threads can simultaneously live in the shared cache.
+so data used by several threads can simultaneously reside in the shared cache.
 Due to the nature of set-associative caches,
 this solution cannot completely eliminate inter-thread cache conflicts,
 especially if the shared cache has a non-LRU replacement policy.
 Evaluation results show that inter-thread cache conflicts on non-LRU shared caches
 can heavily harm GEMM performance,
-even with packed matrices shrinked to fit the cache size.
+even with packed matrices shrinked to fit int the cache.
 
 Following the trend in recent decades, modern architecture design
-are introducing more and more cores on a single processor chip.
+is introducing more and more cores on a single processor chip.
 To reduce cost of on-chip cache memories and coherence networks,
 shared cache may become common in future many-core processors.
 And non-LRU replacement policies, for example, psudo-random,
 may also be used to further reduce the cache design complexity.
-As far as we know, some high-performance processors based on ARM technology,
+Indeed, some high-performance processors based on ARM technology,
 have already adopted this design. (FIXME list the processors)
 As a consequence, a better solution to the inter-thread cache conflicts problem
 on non-LRU shared caches is meaningful.
 
-In this paper, we present a Shared Cache Partition (SCP) method,
+In this paper, we present a Shared Cache Partitioning (SCP) method,
 to reduce inter-thread cache conflicts on architectures with non-LRU share caches.
 The key idea is partition the share cache into physically disjoint sets
 and assign different sets to different threads. This can be achieved by
@@ -105,7 +105,7 @@ The main contributions of this paper are:
 \item We implement SCP in the OpenBLAS library and evaluate it on Phytium 2000+,
   an emerging high-performance processor based on ARM's AArch64 architecture,
   which has 64 cores, private LRU L1 caches and psudo-random shared L2 caches.
-  Evaluation results show that GEMM performance get improved consistently
+  Evaluation results show that GEMM performance improves consistently
   under various parallelism configurations, by an amount of $2.75\%$--$6.91\%$..
 \end{itemize}
 

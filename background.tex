@@ -7,7 +7,7 @@ to overcome the ``memory wall''.
 As a compromise between direct mapped cache and full-associative cache,
 set-associative cache has been the dominant choice for real-world architectures.
 To understand how shared cache can cause inter-thread cache conflicts
-and do harm to GEMM performance, we review some details
+and hurts GEMM performance, we review some details
 about the working mechanisim of set-associative caches.
 
 A set-associative cache can be defined by a 4-tuple $(c, l, n, nt)$,
@@ -17,7 +17,7 @@ and $nt$ means the number of cores sharing the cache.
 The whole cache memory is divided into $ns=c/l/n$ sets,
 denoted by integral indices $\mathcal{S} = [0, ns)$,
 with each set containing $n$ cache lines.
-Generally, $ns$ is a power-of-two value.
+Generally, $ns$ is a power-of-two.
 An indexing function $\varphi: \mathcal{A} \mapsto \mathcal{S}$ is responsible for
 mapping addresses from the address space $\mathcal{A}$
 (either virtual or physical) to cache sets $\mathcal{S}$.
@@ -53,8 +53,8 @@ $NL=2$ levels of caches as the platform for SCP demonstration.
 Figure.~\ref{fig:hierachy} shows its memory hierachy and
 detailed architectural parameters are listed in Table.~\ref{tab:cluster}.
 Each core has 32 128-bit (16B) vector registers,
-each capable of store 2 double precision floating-point numbers.
-To make a consistency, the processor cores on level 0
+each capable of storing 2 double precision floating-point numbers.
+For convenience, the processor cores on level 0
 is represented by its registers, which can be viewed as a special
 level-0 cache $L0 = (512B, 16B, 32, 1)$ with programmable replacement policy.
 
@@ -118,25 +118,25 @@ dimension for a total of $K_c$ times,
 with each iteration performing a rank-1 update on
 the $M_r \times N_r$ submatrix of $C$, as shown at layer 7.
 In OpenBLAS, matrix $C$ is scaled by $\beta$ before the loops,
-so the multiply-accumulate operation at layer 7 need not to scale $C$ again.
+so the multiply-accumulate operation at layer 7 does not have to scale $C$ again.
 Tiling factors $N_c$, $K_c$, $M_c$, $N_r$ and $M_r$ are carefully selected so that
 matrices on each level fit into a certain level in the memory hierachy.
 Equation~(\ref{eq:constraints.reg})--(\ref{eq:constraints.l3}) show
 the constraints on these tiling factors.
-$es$ means the size of matrix element, e.g. 8B for double precision floating-point numbers,
-and $c_l$ means the capacity of registers or caches on level $l$.
+$es$ denotes the size of matrix element, e.g. 8B for double precision floating-point numbers,
+and $c_l$ denotes the capacity of registers or caches on level $l$.
 First, by (\ref{eq:constraints.reg}), $M_r$ and $N_r$ are constrained that $M_r$ elements from $A$,
 $N_r$ elements from $B$ and $M_r \times N_r$ elements from $C$ can fit into registers
 (the psudo level-0 cache).
 Then, by (\ref{eq:constraints.l1}), $K_c$ is constrained that $B_4$ ($N_r \times K_c$),
-$A_4$ ($M_r \times K_c$), and $A_4$'s counterpart in next iteration
+$A_4$ ($M_r \times K_c$), and $A_4$'s counterpart in the next iteration
 at layer 5 fit into the L1 cache.
 Then, by (\ref{eq:constraints.l2}), $M_c$ is constrained that $A_3$ ($M_c \times K_c$),
-$B_3$ ($N_r \times K_c$), and $B_3$'s counterpart in next iteration
+$B_3$ ($N_r \times K_c$), and $B_3$'s counterpart in the next iteration
 at layer 4 fit into the L2 cache.
 At last, by (\ref{eq:constraints.l3}), $N_c$ is constrained that 
 $B_2$ ($K_c \times N_c$) and $A_2$ ($M_c \times K_c$) fit into the L3 cache, if it exists.
-Larger matrices on higher layers 1 -- 3 live in main memory.
+Larger matrices on higher layers 1 -- 3 always reside in main memory.
 
 \begin{eqnarray}
   es (M_r + N_r + M_r N_r) & \le & c_{0} \label{eq:constraints.reg}\\
@@ -182,7 +182,7 @@ As stated in Section~\ref{sec:intro}, an GEMM implementation
 is made up by a kernel routine and an overall strategy.
 In Figure.~\ref{fig:gemm}, GEBP surves as the kernel routine,
 and the overall strategy is defined by the three outter loops at layers 1 -- 3.
-Developer can control how to partition the workload by choosing
+Developers can control how to partition the workload by choosing
 tile factors $M_c$, $N_c$ and $K_c$,
 and how to schedule GEBP tasks by interchanging loop orders at layers 1 - 3.
 Either the N loop at layer 1 or M loop at layer 3, or both of them,
@@ -216,13 +216,13 @@ For set-associative caches, cache misses can be categorized
 into capacity misses and conflict misses.
 While constraints (\ref{eq:constraints.reg}) -- (\ref{eq:constraints.l3})
 serve to avoid capacity misses,
-conflict misses can not be eliminated completely.
+conflict misses cannot be eliminated completely.
 %% We use the term ``cache conflict'' to represent conflict miss events.
 
-Recall Figure.~\ref{fig:gemm}, the packed matrix $A_2$
+In Figure.~\ref{fig:gemm}, the packed matrix $A_2$
 will be read $N_c/N_r$ times within a single GEBP execution,
 and is expected to reside in L2 cache during all $N_c/N_r$ iterations at layer 4.
-The packed matrix $B_4$ is similar that it is expected to
+The packed matrix $B_4$ is similar in that it is expected to
 reside in L1 cache during all $M_c/M_r$ iterations at layer 5.
 In general, even with carefully selected tile factors,
 matrix data can still be evicted out for a few reasons.
@@ -236,8 +236,8 @@ the GEBP kernel repeatedly prefetch data from $A_4$ and $B_4$ to L1 cache
 in every iteration at layer 6 before it actually reads them in case of
 the data being evicted out accidentally.
 As GEBP accesses the matrix data much more frequently than other
-data structures, this repeated prefething stratecy
-can remedy the penalty caused by intra-thread conflicts.
+data structures, this repeated prefething strategy
+can reduce the penalty caused by intra-thread conflicts.
 
 In contrary to intra-thread cache conflicts,
 there exists another kind of cache conflicts,
@@ -262,6 +262,6 @@ Prefetch instructions from different threads are executed repeatedly,
 interleaved in an unpredictable manner.
 So inter-thread cache conflicts described above
 can occur frequently on non-LRU shared caches,
-thus making the technique dealing with intra-thread cache conflicts helpless.
-The situation goes worse with more threads sharing the same cache.
+thus making the technique dealing with intra-thread cache conflicts ineffective.
+The situation worsens with more threads sharing the same cache.
 
