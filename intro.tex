@@ -13,18 +13,18 @@ such as Intel MKL, AMD ACML and NVIDIA cuBLAS.
 The HPC community has also contributed several high-quality
 BLAS implementations, e.g. ATLAS~\cite{atlas},
 GotoBLAS~\cite{gotoblas}, OpenBLAS~\cite{openblas},
-and BLIS~\cite{blis}\cite{blisport}.
+and BLIS~\cite{blis,blisport}.
 
 Among the three levels of BLAS routines, level-3 provides the most opportunities
 for optimization because it has the highest computational complexity ($O(n^3)$).
 Among all the level-3 operations, GEneral Matrix Multiply (GEMM) is
 of the most interest because all other level-3 operations can be defined
-in terms of GEMM and some level-1 and level-2 operations.
-Much effort has been spent on optimizing GEMM for different architectures.
+in terms of GEMM and some level-1 and level-2 operations~\cite{gemmbased1}.
+Much effort has been spent on optimizing GEMM for different
+architectures~\cite{Liu2012,Wang2015,Volkov:2008,Cui11,blispar}.
 %% both in general algorithm and in architecture specific ways.
-(FIXME citations)
 
-GEMM performs a matrix-multiply-accumulate operation.
+%% GEMM performs a matrix-multiply-accumulate operation.
 Generally, an optimized GEMM implementation consists of two components,
 (1) a highly optimized kernel routine to accomplish the computation, and
 (2) an overall strategy to partition the workload into small tasks
@@ -41,7 +41,7 @@ operation throughput, measured by FLoating-point Operations Per Second ($flops$)
 On one hand, optimization of the serial kernel routine concentrates on
 instruction scheduling to improve instruction throughput.
 On the other hand, the overall strategy is responsible for optimizing
-memory accesses to protect the kernel from being idling waiting for data.
+memory accesses to protect the kernel from long memory latencies.
 In this paper, we focus on optimizing the memory access of GEMM.
 
 Currently, two techniques, software prefetching and data packing,
@@ -50,7 +50,7 @@ Software prefetch instructions are utilized
 to load data into cache before they are used, so memory accesses will not
 cause long latencies and floating-point instructions can execute at peak throughput.
 To better exploit the capability of on-chip caches,
-matrix blocks the kernel operates on will be packed into continous memory buffer
+matrix blocks the kernel operates on are packed into continous memory buffer
 whose footprint is within the cache capacity before the kernel routine is called.
 Because GEMM is a computational intensive operation whose
 arithmetic complexity is $O(n^3)$ and memory complexity is $O(n^2)$,
@@ -59,7 +59,7 @@ the input matrices are large~\cite{gotogemm}.
 
 The software prefetching and data packing approach meet a challenge
 when working on architectures with non-LRU shared caches.
-In traditional high-performance processors, e.g. Intel Xeon series,
+In traditional high-performance processors, e.g. the Intel Xeon series,
 both L1 and L2 caches are private to processor cores
 and LRU replacement policy is adopted.
 Without considering the last level cache (LLC),
@@ -76,8 +76,8 @@ Due to the nature of set-associative caches,
 this solution cannot completely eliminate inter-thread cache conflicts,
 especially if the shared cache has a non-LRU replacement policy.
 Evaluation results show that inter-thread cache conflicts on non-LRU shared caches
-can heavily harm GEMM performance,
-even with packed matrices shrinked to fit int the cache.
+can heavily hurt GEMM performance,
+even with packed matrices shrinked to fit into the cache.
 
 Following the trend in recent decades, modern architecture design
 is introducing more and more cores on a single processor chip.
@@ -103,10 +103,11 @@ The main contributions of this paper are:
 \item We propose SCP, a method for solving the inter-thread cache conflicts
   problem on architectures with non-LRU shared caches.
 \item We implement SCP in the OpenBLAS library and evaluate it on Phytium 2000+,
-  an emerging high-performance processor based on ARM's AArch64 architecture,
-  which has 64 cores, private LRU L1 caches and psudo-random shared L2 caches.
+  an emerging high-performance processor based on ARM's AArch64 architecture.
+  Phytium 2000+ has 64 cores, private LRU L1 caches
+  and psudo-random shared L2 caches.
   Evaluation results show that GEMM performance improves consistently
-  under various parallelism configurations, by an amount of $2.75\%$--$6.91\%$..
+  under various parallelism configurations, by an amount of $2.75\%$--$6.91\%$.
 \end{itemize}
 
 To the best of our knowledge, SCP is the first proposal targeted at
