@@ -115,11 +115,11 @@ resulting in a total of six loops (referred to as layers 1 -- 6).
   \label{fig:gemm}
 \end{figure*}
 
-In this blocked algorithm, the loops over the $N$, $K$ and $M$
-matrix dimensions are tiled by sizes $N_c$, $K_c$ and $M_c$ at 
-layers 1, 2 and 3, respectively.
-At layers 4 and 5, the $N$ and $M$ dimensions are further tiled by sizes
-$N_r$ and $M_r$, respectively.
+In this blocked algorithm, the $jj$, $kk$ and $ii$ loops
+along the $N$, $K$ and $M$ matrix dimensions are
+tiled by sizes $N_c$, $K_c$ and $M_c$ at layers 1, 2 and 3, respectively.
+At layers 4 and 5, the $j$ and $i$ loops along the $N$ and $M$ dimensions
+are further tiled by sizes $N_r$ and $M_r$, respectively.
 As a result, the innermost loop at layer 6 goes over the $K$
 dimension for a total of $K_c$ times,
 with each iteration performing a rank-1 update on

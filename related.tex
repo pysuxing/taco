@@ -64,7 +64,8 @@ and SCP serves as the first work to solve this problem.
 In \cite{gotogemm}, a detailed discussion on
 choosing different loop orders is given.
 GEMM are usually parallelized only at layer 3 (the $ii$ loop),
-but all loops along the M and N dimensions are potentially parallelizable.
+but all loops along the $M$ and $N$ matrix dimensions
+are potentially parallelizable.
 BLIS\cite{blispar} allows developers to specify a sophisticated configuration
 so that more than one loops at layers 1, 3, 4 and 5
 can be simultaneously parallelized.
