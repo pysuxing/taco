@@ -9,11 +9,11 @@ Then a formal description is given in Section~\ref{subsec:formal}.
 \subsection{Example}\label{subsec:example}
 
 Suppose we are implementing a double precision GEMM (DGEMM) on
-the 4-core processor, i.e. $es=8B$.
+the 4-core processor, i.e., $es=8B$.
 We now determine the tiling factors used in DGEMM following the procedure described
 by constraints (\ref{eq:constraints.reg})--(\ref{eq:constraints.l3}).
 Various configurations for ($M_r$, $N_r$) can satisfy (\ref{eq:constraints.reg}),
-e.g. $(4,8)$, $(8,4)$, $(6,8)$, and $(8,6)$. 
+e.g., $(4,8)$, $(8,4)$, $(6,8)$, and $(8,6)$. 
 It takes careful consideration to determine which one is the best,
 and a tuning process may be needed.
 After tuning we obtain the best values $M_r = 4$ and $N_r = 8$.
@@ -25,7 +25,7 @@ $M_c \le \lfloor (c_{L2}/es/nt_{L2} - 2 N_r K_c )/ K_c \rfloor =
 \lfloor (2MB/8B/4 - 2*8*256)/256 \rfloor = 240$.
 To leave space for other data structures, as well as the program code,
 it is reasonable to shrink $M_c$ to a slightly smaller value,
-e.g. $192$, $208$ and $224$ are all proper candidates for $M_c$.
+e.g., $192$, $208$ and $224$ are all proper candidates for $M_c$.
 Similar to $M_r$ and $N_r$, a tuning process may be needed to
 find the best value for $M_c$.
 Here we choose $M_c = 192$.
@@ -122,17 +122,17 @@ Before diving into details, we make a few assumptions,
 which are standard practice rarely violated,
 on the architectures that SCP can deal with:
 \begin{itemize}
-\item The architecture has 2 or 3 levels of cache. %% i.e. $NL=2$ or $NL=3$
-\item All caches are inclusive set-associative caches. %% i.e. $n_l \ge 2$ for $l \in [1, NL]$
-\item Caches on the same level are homogeneous. %% i.e. $L_l^i = L_l^j$ for $i \ne j$, $l \in [1, NL]$.
+\item The architecture has 2 or 3 levels of cache. %% i.e., $NL=2$ or $NL=3$
+\item All caches are inclusive set-associative caches. %% i.e., $n_l \ge 2$ for $l \in [1, NL]$
+\item Caches on the same level are homogeneous. %% i.e., $L_l^i = L_l^j$ for $i \ne j$, $l \in [1, NL]$.
 \item A cache's way-capacity is a multiple of the sum of way-capacity of its children,
-i.e. $(\frac{nt_l}{nt_{l-1}} \cdot wc_{l-1}) \mid wc_l$.
+i.e., $(\frac{nt_l}{nt_{l-1}} \cdot wc_{l-1}) \mid wc_l$.
 \end{itemize}
 
 We use a memory descriptor $\mathcal{D}_t^M$ to specify 
 the memory space occupied by packed matrix $M$ used by thread $t$.
 The memory descriptor is essentially a subspace of
-the whole address space, i.e. $\mathcal{D}_t^M \subset \mathcal{A}$.
+the whole address space, i.e., $\mathcal{D}_t^M \subset \mathcal{A}$.
 %% The memory layout of a packed matrix is described by a memory descriptor,
 %% which is essentially a subspace of the whole address space $\mathcal{A}$.
 %% Each packed matrix $M$ used by thread $t$,
@@ -180,7 +180,7 @@ The second phase computes memory descriptors for $A_2$ instances
 by partitioning $\mathcal{D}_p$ into $NT$ thread-private buffers
 $\mathcal{D}_t^{A_2}$ , $t \in [0, NT)$.
 Buffers of different threads are disjoint,
-i.e. $\mathcal{D}_i^{A_2} \bigcap \mathcal{D}_j^{A_2} = \phi$ if $i \ne j$.
+i.e., $\mathcal{D}_i^{A_2} \bigcap \mathcal{D}_j^{A_2} = \phi$ if $i \ne j$.
 The third phase computes memory descriptors for $B_2$.
 Because is $B_2$ is shared among all threads,
 $\mathcal{D}_t^{B_2}$ does not represent the whole $B_2$ matrix,
@@ -261,7 +261,7 @@ identify the node on which it is running,
 and a subspace $\mathcal{D}_l^{idx} \subset \mathcal{D}_p$ allocated to the node. 
 The functionality of $subspace$ is to partition $\mathcal{D}_l^{idx}$
 among all children of node $(l, idx)$.
-If $subspace$ encounters a level 0 node, i.e. a processor core,
+If $subspace$ encounters a level 0 node, i.e., a processor core,
 then $\mathcal{D}_l^{idx}$ is exactly the thread-private
 memory buffer $\mathcal{D}_{idx}$ for thread $idx$ and $subspace$ returns early
 (line~\ref{line:shortcut.begin}--\ref{line:shortcut.end}).

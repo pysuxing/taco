@@ -124,7 +124,7 @@ Tiling factors $N_c$, $K_c$, $M_c$, $N_r$ and $M_r$ are carefully selected so th
 matrices on each level fit into a certain level in the memory hierarchy.
 Equation~(\ref{eq:constraints.reg})--(\ref{eq:constraints.l3}) show
 the constraints on these tiling factors.
-$es$ denotes the size of matrix element, e.g. 8B for double precision floating-point numbers,
+$es$ denotes the size of matrix element, e.g., 8B for double precision floating-point numbers,
 and $c_l$ denotes the capacity of registers or caches on level $l$.
 First, by (\ref{eq:constraints.reg}), $M_r$ and $N_r$ are constrained that $M_r$ elements from $A$,
 $N_r$ elements from $B$ and $M_r \times N_r$ elements from $C$ can fit into registers
@@ -255,7 +255,7 @@ If $\varphi_2(addr_1)$ happens to be equal to $\varphi_2(addr_0)$,
 data at $addr_1$ and $addr_0$ will be fetched to the same cache set.
 As the shared L2 cache has a non-LRU policy,
 data at $addr_0$ may suffer an eviction before it is actually read,
-i.e. a conflict miss occurs.
+i.e., a conflict miss occurs.
 
 In GEMM, the cache is utilized aggressively
 that almost all cache space is expected to be occupied by packed matrices.

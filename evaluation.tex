@@ -22,7 +22,7 @@ relies on the DGEMM variant.
 All evaluations run with the same tiling factors
 $M_r$, $N_r$, $K_c$, $M_c$ and $N_c$.
 The tiling factors are computed as in Section~\ref{subsec:example},
-i.e. $M_r = 4$, $N_r = 8$, $K_c = 256$, $M_c = 192$, $N_c = 1024NT$.
+i.e., $M_r = 4$, $N_r = 8$, $K_c = 256$, $M_c = 192$, $N_c = 1024NT$.
 The parallelism is controlled by two parameters,
 the number of active clusters $NC$,
 and the number of active threads per cluster $NT_C$.
@@ -371,7 +371,7 @@ In conventional packing, each thread takes a single task.
 In full privatization, all tasks are replicated to all threads.
 As a result, the packing overhead grows in proportion to $NT$
 in full privatization strategy, which is unacceptable
-if GEMM is highly parallelized, e.g. $NT=64$.
+if GEMM is highly parallelized, e.g., $NT=64$.
 Partial privatization in Figure.~\ref{fig:packb.partial}
 offers an alternative to full privatization.
 In partial privatization, privatization only occurs inside
