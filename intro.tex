@@ -11,7 +11,7 @@ Processor vendors often provide BLAS implementations
 that are highly optimized for their processors,
 such as Intel MKL, AMD ACML and NVIDIA cuBLAS.
 The HPC community has also contributed several high-quality
-BLAS implementations, e.g. ATLAS~\cite{atlas},
+BLAS implementations, e.g., ATLAS~\cite{atlas},
 GotoBLAS~\cite{gotoblas}, OpenBLAS~\cite{openblas},
 and BLIS~\cite{blis,blisport}.
 
@@ -47,8 +47,7 @@ instruction scheduling to improve instruction throughput.
 For the workload partitioning, the optimization 
 reorganizes memory accesses to reduce long memory latencies for
 the kernel.
-In this paper, we focus on optimizing the memory 
-accesses for GEMM.
+In this paper, we focus on optimizing the memory accesses for GEMM.
 
 Two techniques, software prefetching and data packing,
 have been widely used in GEMM implementations to speed up memory accesses.
@@ -66,11 +65,10 @@ arithmetic complexity is $O(n^3)$ and memory complexity is $O(n^2)$,
 the overhead caused by data packing is negligible when
 the input matrices are large~\cite{gotogemm}.
 
-However, software prefetching and data packing cannot be
-effectively
+
+However, software prefetching and data packing cannot be effectively
 applied to architectures with non-LRU shared caches.
-In traditional high-performance processors, e.g.,
-the Intel Xeon series,
+In traditional high-performance processors, e.g., the Intel Xeon series,
 both L1 and L2 caches are private to processor cores
 and LRU replacement policy is adopted.
 Without considering the last level cache (LLC),
@@ -127,8 +125,7 @@ The main contributions of this paper are as follows:
   an emerging high-performance processor based on ARM's AArch64 architecture.
   Phytium 2000+ has 64 cores, private LRU L1 caches
   and pseudo-random shared L2 caches.
-  Our evaluation shows that SCP can improve the
-  GEMM performance consistently
+  Our evaluation shows that SCP can improve the GEMM performance consistently
   under various parallelism configurations, by $2.75\%$--$6.91\%$.
 \end{itemize}
 

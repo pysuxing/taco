@@ -10,20 +10,21 @@ we give the algorithms in our SCP method.
 
 \subsection{An Example}\label{subsec:example}
 
+
 Suppose we want to implement a double precision GEMM (DGEMM) on
 the 4-core processor, where $es=8B$.
 We now determine the tiling factors used based on
 the constraints (\ref{eq:constraints.reg}) -- (\ref{eq:constraints.l3}).
 Many solutions for ($M_r$, $N_r$) can satisfy (\ref{eq:constraints.reg}), including
-$(4,8)$, $(8,4)$, $(6,8)$, and $(8,6)$. Auto
-tuning returns
-$M_r = 4$ and $N_r = 8$ as the best.
+$(4,8)$, $(8,4)$, $(6,8)$, and $(8,6)$.
+Auto tuning returns $M_r = 4$ and $N_r = 8$ as the best.
 By (\ref{eq:constraints.l1}),
 $K_c \le \lfloor c_{L1}/es/nt_{L1}/(N_r + 2 M_r) \rfloor = \lfloor 32KB/8B/1/16 \rfloor = 256$.
 Here, we choose $K_c=256$.
 By (\ref{eq:constraints.l2}),
 $M_c \le \lfloor (c_{L2}/es/nt_{L2} - 2 N_r K_c )/ K_c \rfloor =
 \lfloor (2MB/8B/4 - 2*8*256)/256 \rfloor = 240$.
+
 To leave space for other data structures and the program code,
 it is reasonable to shrink $M_c$ slightly, with,
 for example, $192$, $208$ and $224$ as good
@@ -68,7 +69,7 @@ the sizes of various packed matrices used.
 \end{figure}
 
 Each $A_2$ is packed into a single continuous buffer.
-Figure~\ref{fig:partition.conventional} shows how the
+Figure.~\ref{fig:partition.conventional} shows how the
 $A_2$ instances of 4 threads are distributed in the shared 16-way L2 cache.
 Every cache set $s \in [0,2048)$ contains
 data from all 4 $A_2$ instances,
@@ -99,18 +100,20 @@ What about $B_2$, the other packed matrix used in GEBP?
 Unlike $A_2$, which is thread-private,
 $B_2$ is shared among all threads and
 the packing of $B_2$ is done collaboratively by all threads.
+
 There are two choices (with different tradeoffs), (1) privatize $B_2$ and apply 
 set-partitioning and (2) 
-fall back to the conventional way-partitioning 
-for $B_2$.
+fall back to the conventional way-partitioning for $B_2$.
 $B_2$ can be made thread-private if every thread makes
 its own pack of the whole $B_1$ matrix.
 The first choice achieves a full per-thread data isolation
 at the expense of redundant packing overhead.
 The second choice avoids the extra overhead in both time and space
-but potentially increases the inter-thread conflicts caused by the shared $B_2$ matrix.
-In this work,
-these two choices are evaluated and compared in Section~\ref{sec:evaluation}.
+but potentially increases the inter-thread conflicts caused
+by the shared $B_2$ matrix.
+In this work, these two choices are evaluated
+and compared in Section~\ref{sec:evaluation}.
+
 
 \subsection{Algorithms}\label{subsec:formal}
 
@@ -148,9 +151,9 @@ the whole address space, i.e., $\mathcal{D}_t^M \subset \mathcal{A}$.
 %% specifying the memory space it occupies.
 Generally, $\mathcal{D}_t^M$ consists of a sequence of $N_t^M$ disjoint memory segments,
 $\mathcal{D}_t^M = \{ S_0, S_1, \cdots, S_{N_t^M}\}$.
+
 %% in which $S_i \bigcap S_j = \phi$ if $i \ne j$.
-A segment is represented by its start and end addresses,
-$S_i = [s_i, e_i)$,
+A segment is represented by its start and end addresses, $S_i = [s_i, e_i)$,
 in which $s_i < e_i \in \mathcal{A}$.
 With way-partitioning, the memory descriptor contains only one segment.
 With set-partitioning,
@@ -206,8 +209,7 @@ extra efforts are made to ensure a proper alignment for $\mathcal{D}_p$.
 Then $align$ is found
 (lines~\ref{line:align.init} -- \ref{line:align.endfor}) 
 and $size_p$ is enlarged to a multiple of $align$ (line~\ref{line:align}).
-Specifically,
-$align$ is initialized with the L1 cache line size $l_1$.
+Specifically, $align$ is initialized with the L1 cache line size $l_1$.
 Then for each level $l$ (line~\ref{line:align.for})
 with shared non-LRU caches (line~\ref{line:align.type}),
 $align$ is updated by computing the least-common-multiple of
@@ -262,8 +264,8 @@ are created (line~\ref{line:d.begin} -- \ref{line:d.end}).
 \end{algorithm}
 
 %% FIXME memory buffer? memory space? subspace?
-Algorithm~\ref{alg:scp.phase2} describes
-the second phase of SCP.
+
+Algorithm~\ref{alg:scp.phase2} describes the second phase of SCP.
 The main component is a recursive procedure $subspace$
 (lines~\ref{line:subspace.begin} -- \ref{line:subspace.end}).
 The $subspace$ procedure traverses the memory hierarchy
@@ -275,8 +277,7 @@ identifying the node on which it is running,
 and a subspace $\mathcal{D}_l^{idx} \subset \mathcal{D}_p$ allocated to the node. 
 The functionality of $subspace$ is to partition $\mathcal{D}_l^{idx}$
 among all the children of node $(l, idx)$.
-If $subspace$ encounters a level 0 node, i.e.,
-a processor core,
+If $subspace$ encounters a level 0 node, i.e., a processor core,
 then $\mathcal{D}_l^{idx}$ is exactly the thread-private
 memory buffer $\mathcal{D}_{idx}$ for thread $idx$,
 causing $subspace$ to return early
