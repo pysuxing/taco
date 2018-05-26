@@ -1,7 +1,7 @@
 \section{Introduction}\label{sec:intro}
 Dense linear algebra libraries are the most fundamental software in
 scientific and engineering computing domains.
-Basic Linear Algebra Subprograms (BLAS) (FIXME) defines a collection
+Basic Linear Algebra Subprograms (BLAS)~\cite{blas}  defines a collection
 of APIs which act as standard building blocks for dense matrix operations.
 BLAS routines are divided into 3 levels,
 level-1 for vector-vector operations,
@@ -97,8 +97,12 @@ shared caches may become common in future many-core processors.
 In addition, non-LRU replacement policies, for example, pseudo-random,
 may also be used to further reduce the cache design complexity.
 Indeed, some high-performance processors based on the
-ARM technology,
-have already adopted this design. (FIXME list the processors)
+ARM technology, e.g., the Phytium processor series~\cite{phytium},
+%% I'm sure they have shared L2 caches,
+%% but have not found any technical specification about the replacement policy
+%% XGene from AppliedMicro~\cite{xgene},
+%% ThunderX from Cavium~\cite{thunderx}
+have already adopted this design. 
 As a result, developing a better solution to reduce
 the inter-thread cache conflicts 
 for non-LRU shared caches is important.
