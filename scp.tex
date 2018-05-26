@@ -87,9 +87,6 @@ To obtain the data layout in set-partitioning,
 $A_2$ can no longer be stored in a single continuous buffer.
 Instead, $A_2$ will be distributed to 12 continuous memory segments, each of size $32KB$.
 The distance from one segment to the next is equal to $wc_2=128KB$.
-%% There is no memory fragment because the segment size is a multiple of
-%% size of $A_4$ (8KB).
-%% FIXME put this to the end of this section
 While avoiding inter-thread cache conflicts,
 set-partitioning
 introduces some complexity to GEMM implementations
@@ -159,7 +156,6 @@ With way-partitioning, the memory descriptor contains only one segment.
 With set-partitioning,
 the memory descriptor contains a sequence of equally strided segments.
 
-%% FIXME use l as the level iterator?
 \begin{algorithm}
   \caption{SCP phase 1: allocate memory buffers}
   \label{alg:scp.phase1}
@@ -262,8 +258,6 @@ are created (line~\ref{line:d.begin} -- \ref{line:d.end}).
     \ENDWHILE \label{line:subspace.end}
   \end{algorithmic}
 \end{algorithm}
-
-%% FIXME memory buffer? memory space? subspace?
 
 Algorithm~\ref{alg:scp.phase2} describes the second phase of SCP.
 The main component is a recursive procedure $subspace$
