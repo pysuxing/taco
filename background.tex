@@ -193,18 +193,19 @@ and the overall workload-partitioning strategy is defined by the three outer loo
 Developers can decide how to partition the workload by choosing
 tile factors $M_c$, $N_c$ and $K_c$,
 and how to schedule GEBP tasks by interchanging loop orders at layers 1 - 3.
-Either the N loop at layer 1 or the M loop at layer 3, or 
-both,
+Either the $jj$ loop at layer 1 or the $ii$ loop at layer 3, or both,
 can be parallelized in a multi-threaded context.
 Specifically, the implementation in Figure~\ref{fig:gemm}
-chooses an NKM loop order and parallelizes the M loop at layer 3.
+chooses an $jj\textrm{-}kk\textrm{-}ii$ loop order
+and parallelizes the $ii$ loop at layer 3.
 Different threads work on different parts of $A_1$
 and share the same $B_1$.
 
 As a result, there are multiple $A_2$ instances (one per thread)
 and a single $B_2$ instance (shared by all threads).
-To understand how the loop at layer 3 is parallelized on the 4-core processor, 
-Figure.~\ref{fig:workload} shows the data accessing patterns of a single thread $T_1$.
+To understand how the $ii$ loop at layer 3 is parallelized on the 4-core processor, 
+Figure.~\ref{fig:workload} shows the data accessing patterns
+of a single thread $T_1$.
 While all color shaded submatrices are accessed by $T_1$,
 only the z-curve masked submatrices (a subset of color shaded ones)
 are packed by the thread.

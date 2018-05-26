@@ -64,14 +64,11 @@ As far as we know, this paper is the first to
 address the problem of cache sharing with non-LRU replacement policies,
 and SCP serves as the first work to address this problem.
 In \cite{gotogemm}, a detailed discussion on
-choosing
-different loop orders is given.
-GEMM are usually parallelized only at
-layer 3 (the M loop),
+choosing different loop orders is given.
+GEMM are usually parallelized only at layer 3 (the $ii$ loop),
 but all loops along the M and N dimensions are potentially parallelizable.
 BLIS\cite{blispar} allows developers to specify a sophisticated configuration
-so 
-that more than one loops at layers 1, 3, 4 and 5
+so that more than one loops at layers 1, 3, 4 and 5
 can be simultaneously parallelized.
 This nested parallelization is well suited to complex architecture features
 like multi-sockets and hyperthreading. 
