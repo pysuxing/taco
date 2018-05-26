@@ -140,7 +140,7 @@ the whole address space, i.e., $\mathcal{D}_t^M \subset \mathcal{A}$.
 %% specifying the memory space it occupies.
 Generally, $\mathcal{D}_t^M$ consists of a sequence of $N_t^M$ disjoint memory segments,
 $\mathcal{D}_t^M = \{ S_0, S_1, \cdots, S_{N_t^M}\}$.
-%% in which $S_i \bigcap S_j = \phi$ if $i \ne j$.
+%% in which $S_i \bigcap S_j = \emptyset$ if $i \ne j$.
 A segment is represented by its start and end addresses $S_i = [s_i, e_i)$,
 in which $s_i < e_i \in \mathcal{A}$.
 With way-partitioning, the memory descriptor contains only one segment.
@@ -180,7 +180,7 @@ The second phase computes memory descriptors for $A_2$ instances
 by partitioning $\mathcal{D}_p$ into $NT$ thread-private buffers
 $\mathcal{D}_t^{A_2}$ , $t \in [0, NT)$.
 Buffers of different threads are disjoint,
-i.e., $\mathcal{D}_i^{A_2} \bigcap \mathcal{D}_j^{A_2} = \phi$ if $i \ne j$.
+i.e., $\mathcal{D}_i^{A_2} \bigcap \mathcal{D}_j^{A_2} = \emptyset$ if $i \ne j$.
 The third phase computes memory descriptors for $B_2$.
 Because is $B_2$ is shared among all threads,
 $\mathcal{D}_t^{B_2}$ does not represent the whole $B_2$ matrix,
