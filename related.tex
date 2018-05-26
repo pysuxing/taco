@@ -1,6 +1,6 @@
-\section{Releated Work}\label{sec:related}
+\section{Related Work}\label{sec:related}
 The idea that all level-3 BLAS operations can be built upon
-a high-performance GEMM implemention was first proposed
+a high-performance GEMM implementation was first proposed
 in~\cite{gemmbased1,gemmbased2}.
 The GotoBLAS library~\cite{gotoblas}, and its successor OpenBLAS~\cite{openblas},
 are instantiated based on this insight.
@@ -27,7 +27,7 @@ automatically generate kernels with different parameters
 in C and find the best-performing one by running them
 on the actual computing system.
 POET~\cite{poet,poetcgo,poetmicro} and AUGEM~\cite{augem} uses a 
-directive-based programming approache.
+directive-based programming approach.
 Given a GEMM kernel in C, POET inserts annotations into
 the C code to direct source-to-source compiler transformations.
 AUGEM uses a template-based method to match
@@ -66,5 +66,5 @@ BLIS\cite{blispar} allows the users to specify a sophisticated configuration
 that more than one loops of layer 1, 3, 4 and 5
 can be simultaneously parallelized.
 This nested parallelization can better fit complex architecture features
-like multi-sockets and hyperthreading. 
+like multi-sockets and hyper-threading. 
 

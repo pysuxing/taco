@@ -5,7 +5,7 @@ Basic Linear Algebra Subprograms (BLAS) (FIXME) defines a collection
 of APIs which act as standard building blocks for dense matrix operations.
 BLAS routines are divided into 3 levels,
 level-1 for vector-vector operations,
-level-2 for matrix-vetor operations,
+level-2 for matrix-vector operations,
 and level-3 for matrix-matrix operations.
 Processor vendors often provide BLAS implementations
 highly optimized for their processors,
@@ -41,7 +41,7 @@ operation throughput, measured by FLoating-point Operations Per Second ($flops$)
 On one hand, optimization of the serial kernel routine concentrates on
 instruction scheduling to improve instruction throughput.
 On the other hand, the overall strategy is responsible for optimizing
-memory accesses to protect the kernel from long memory latencies.
+memory accesses to protect the kernel from long memory latency.
 In this paper, we focus on optimizing the memory access of GEMM.
 
 Currently, two techniques, software prefetching and data packing,
@@ -50,7 +50,7 @@ Software prefetch instructions are utilized
 to load data into cache before they are used, so memory accesses will not
 cause long latencies and floating-point instructions can execute at peak throughput.
 To better exploit the capability of on-chip caches,
-matrix blocks the kernel operates on are packed into continous memory buffer
+matrix blocks the kernel operates on are packed into continuous memory buffer
 whose footprint is within the cache capacity before the kernel routine is called.
 Because GEMM is a computational intensive operation whose
 arithmetic complexity is $O(n^3)$ and memory complexity is $O(n^2)$,
@@ -83,7 +83,7 @@ Following the trend in recent decades, modern architecture design
 is introducing more and more cores on a single processor chip.
 To reduce cost of on-chip cache memories and coherence networks,
 shared cache may become common in future many-core processors.
-And non-LRU replacement policies, for example, psudo-random,
+And non-LRU replacement policies, for example, pseudo-random,
 may also be used to further reduce the cache design complexity.
 Indeed, some high-performance processors based on ARM technology,
 have already adopted this design. (FIXME list the processors)
@@ -94,7 +94,7 @@ In this paper, we present a Shared Cache Partitioning (SCP) method,
 to reduce inter-thread cache conflicts on architectures with non-LRU share caches.
 The key idea is partition the share cache into physically disjoint sets
 and assign different sets to different threads. This can be achieved by
-exploiting the memory mapping mechanisim of set-associative caches.
+exploiting the memory mapping mechanism of set-associative caches.
 
 The main contributions of this paper are:
 \begin{itemize}
@@ -105,7 +105,7 @@ The main contributions of this paper are:
 \item We implement SCP in the OpenBLAS library and evaluate it on Phytium 2000+,
   an emerging high-performance processor based on ARM's AArch64 architecture.
   Phytium 2000+ has 64 cores, private LRU L1 caches
-  and psudo-random shared L2 caches.
+  and pseudo-random shared L2 caches.
   Evaluation results show that GEMM performance improves consistently
   under various parallelism configurations, by an amount of $2.75\%$--$6.91\%$.
 \end{itemize}

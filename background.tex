@@ -1,6 +1,6 @@
 \section{Background}\label{sec:background}
 
-\subsection{The Memory Hierachy Review}\label{subsec:hierachy}
+\subsection{The Memory Hierarchy Review}\label{subsec:hierachy}
 
 Modern architectures take advantage of fast on-chip caches
 to overcome the ``memory wall''.
@@ -8,8 +8,8 @@ As a compromise between direct mapped cache and full-associative cache,
 set-associative cache has been the dominant choice for real-world architectures.
 To understand how cache sharing can cause inter-thread cache conflicts
 and hurts GEMM performance, we review some details
-about the working mechanisim of set-associative caches and
-the memory hierachy of modern processors.
+about the working mechanism of set-associative caches and
+the memory hierarchy of modern processors.
 
 A set-associative cache can be defined by a 4-tuple $(c, l, n, nt)$,
 in which $c$ is the cache capacity, $l$ is the cache line size,
@@ -34,24 +34,24 @@ position in $addr$'s binary form.
   \label{eq:phi}
 \end{equation*}
 
-It is easy to prove that any continous memory block no larger than $c/n$
+It is easy to prove that any continuous memory block no larger than $c/n$
 cannot conflict with itself.
 We define a quantity, way-capacity, denoted as $wc=c/n$,
 to represent this size bound for conflict-free memory blocks.
 
 The main memory, $NL$ levels of caches, and $NT$ processor cores
-form a memory hierachy generally organized into
+form a memory hierarchy generally organized into
 a $NL+2$ level regular tree structure.
 Processor cores at level $0$ are leaves,
-caches at levels $1$ -- $NL$ are intermedia nodes
+caches at levels $1$ -- $NL$ are intermediate nodes
 and the main memory at level $NL+1$ is the tree root.
-Any node in the memory hierachy can be identified by
+Any node in the memory hierarchy can be identified by
 its layer and its unique index on the layer $(layer, index)$.
 The number of nodes on layer $l$ is $NT / nt_l$.
 
 Throughout this paper we will use a 4-core processor with
 $NL=2$ levels of caches as the platform for SCP demonstration.
-Figure.~\ref{fig:hierachy} shows its memory hierachy and
+Figure.~\ref{fig:hierachy} shows its memory hierarchy and
 detailed architectural parameters are listed in Table.~\ref{tab:cluster}.
 Each core has 32 128-bit (16B) vector registers,
 each capable of storing 2 double precision floating-point numbers.
@@ -62,7 +62,7 @@ level-0 cache $L0 = (512B, 16B, 32, 1)$ with programmable replacement policy.
 \begin{figure}
   \centering
   \includegraphics[width=.45\textwidth]{figures/cluster-new}
-  \caption{Memory hierachy of the 4-core processor
+  \caption{Memory hierarchy of the 4-core processor
     (nodes labeled with $(layer,index)$)}
   \label{fig:hierachy}
 \end{figure}
@@ -78,7 +78,7 @@ level-0 cache $L0 = (512B, 16B, 32, 1)$ with programmable replacement policy.
     \midrule
     L0 Registers  & 512B & 32 & 16B & 1 & 1 & 16B & programmable \\
     L1 Data    & 32KB & 2  & 64B & 1 & 256 & 16KB & LRU \\
-    L2 Unified & 2MB  & 16 & 64B & 4 & 2048 & 128KB & psudo-random \\
+    L2 Unified & 2MB  & 16 & 64B & 4 & 2048 & 128KB & pseudo-random \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -117,18 +117,18 @@ $N_r$ and $M_r$, respectively.
 As a result, the innermost loop at layer 6 goes over the $K$
 dimension for a total of $K_c$ times,
 with each iteration performing a rank-1 update on
-the $M_r \times N_r$ submatrix of $C$, as shown at layer 7.
+the $M_r \times N_r$ sub-matrix of $C$, as shown at layer 7.
 In OpenBLAS, matrix $C$ is scaled by $\beta$ before the loops,
 so the multiply-accumulate operation at layer 7 does not have to scale $C$ again.
 Tiling factors $N_c$, $K_c$, $M_c$, $N_r$ and $M_r$ are carefully selected so that
-matrices on each level fit into a certain level in the memory hierachy.
+matrices on each level fit into a certain level in the memory hierarchy.
 Equation~(\ref{eq:constraints.reg})--(\ref{eq:constraints.l3}) show
 the constraints on these tiling factors.
 $es$ denotes the size of matrix element, e.g. 8B for double precision floating-point numbers,
 and $c_l$ denotes the capacity of registers or caches on level $l$.
 First, by (\ref{eq:constraints.reg}), $M_r$ and $N_r$ are constrained that $M_r$ elements from $A$,
 $N_r$ elements from $B$ and $M_r \times N_r$ elements from $C$ can fit into registers
-(the psudo level-0 cache).
+(the pseudo level-0 cache).
 Then, by (\ref{eq:constraints.l1}), $K_c$ is constrained that $B_4$ ($N_r \times K_c$),
 $A_4$ ($M_r \times K_c$), and $A_4$'s counterpart in the next iteration
 at layer 5 fit into the L1 cache.
@@ -150,7 +150,7 @@ Larger matrices on higher layers 1 -- 3 always reside in main memory.
 Table~\ref{tab:factors} shows the procedure choosing various tiling factors.
 In each row, one or more tiling factors (column 1) is determined
 by a size constraint (column 3) related to a certain level
-in the memory hierachy (column 2).
+in the memory hierarchy (column 2).
 \begin{table}
   \centering
   \caption{Procedure of choosing tiling factors}
@@ -173,7 +173,7 @@ computing $C_2\ = C_2 + \alpha A_2 B_2$ as an architecture-dependent kernel,
 known as  GEBP (GEneral multiply of a Block of $A$ and a Panel of $B$).
 It is worthy noting that before GEBP is called (at layer 3),
 $A_1[ii:ii+M_c-1][:]$ and $B_1$ are packed into $A_2$ and $B_2$
-in a special continous layout,
+in a special continuous layout,
 so consecutive memory access is ensured within the GEBP kernel.
 GotoBLAS~\cite{gotoblas}, and its successor, OpenBLAS~\cite{openblas},
 implement GEMM programs based on this factorization,
@@ -181,8 +181,8 @@ with GEBP highly optimized for the target processor (often coded in assembly).
 
 As stated in Section~\ref{sec:intro}, a GEMM implementation
 is made up by a kernel routine and an overall strategy.
-In Figure.~\ref{fig:gemm}, GEBP surves as the kernel routine,
-and the overall strategy is defined by the three outter loops at layers 1 -- 3.
+In Figure.~\ref{fig:gemm}, GEBP serves as the kernel routine,
+and the overall strategy is defined by the three outer loops at layers 1 -- 3.
 Developers can control how to partition the workload by choosing
 tile factors $M_c$, $N_c$ and $K_c$,
 and how to schedule GEBP tasks by interchanging loop orders at layers 1 - 3.
@@ -196,11 +196,11 @@ As a result, there are multiple $A_2$ instances, one per thread,
 and a single $B_2$ instances, shared by all threads.
 To understand how the loop on layer 3 is parallelized on the 4-core processor, 
 Figure.~\ref{fig:workload} shows the data accessing patterns of a single thread $T_1$.
-While all color shaded submatrices are accessed by $T_1$,
-only z-curve masked submatrices (a subset of color shaded ones)
+While all color shaded sub-matrices are accessed by $T_1$,
+only z-curve masked sub-matrices (a subset of color shaded ones)
 are packed by the thread.
 That is, each thread packs its own $A_2$ instance and 
-$B_2$ is packed by all thread collabratively.
+$B_2$ is packed by all thread collaboratively.
 %% We will use the OpenBLAS GEMM implementation in Figure.~\ref{fig:gemm}
 %% in discussion and evaluation throughout the paper.
 
@@ -237,7 +237,7 @@ the GEBP kernel repeatedly prefetch data from $A_4$ and $B_4$ to L1 cache
 in every iteration at layer 6 before it actually reads them in case of
 the data being evicted out accidentally.
 As GEBP accesses the matrix data much more frequently than other
-data structures, this repeated prefething strategy
+data structures, this repeated prefetching strategy
 can reduce the penalty caused by intra-thread conflicts.
 
 In contrary to intra-thread cache conflicts,
@@ -250,7 +250,7 @@ At time $t_s$, $T_0$ prefetches some data at address $addr_0$
 to cache set $\varphi_2(addr_0)$ of the shared L2 cache.
 The data will be actually read at time $t_e$.
 Then at some time $t_m$ ($t_s < t_m < t_e$),
-$T_1$ prefetches data at addr $addr_1$ to L2 cache.
+$T_1$ prefetches data at address $addr_1$ to L2 cache.
 If $\varphi_2(addr_1)$ happens to be equal to $\varphi_2(addr_0)$,
 data at $addr_1$ and $addr_0$ will be fetched to the same cache set.
 As the shared L2 cache has a non-LRU policy,

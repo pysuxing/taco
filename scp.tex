@@ -26,7 +26,7 @@ $M_c \le \lfloor (c_{L2}/es/nt_{L2} - 2 N_r K_c )/ K_c \rfloor =
 To leave space for other data structures, as well as the program code,
 it is reasonable to shrink $M_c$ to a slightly smaller value,
 e.g. $192$, $208$ and $224$ are all proper candidates for $M_c$.
-Similar to $M_r$ and $N_r$, a tunning process may be needed to
+Similar to $M_r$ and $N_r$, a tuning process may be needed to
 find the best value for $M_c$.
 Here we choose $M_c = 192$.
 As there is no L3 cache, (\ref{eq:constraints.l3}) can be ignored
@@ -67,7 +67,7 @@ various packed matrices.
   \label{fig:partition}
 \end{figure}
 
-Each $A_2$ is packed into a single continous buffer.
+Each $A_2$ is packed into a single continuous buffer.
 Figure.~\ref{fig:partition.conventional} shows how the
 $A_2$ instances of 4 threads are distributed in the shared 16-way L2 cache.
 We see that every cache set $s \in [0,2048)$ contains
@@ -80,10 +80,10 @@ and inter-thread cache conflicts caused by $A_2$ are eliminated completely!
 
 Figure.~\ref{fig:partition.conventional} and Figure.~\ref{fig:partition.segmented}
 essentially represent two different partitioning styles of the shared cache,
-refered to as way-partitioning and set-partitioning, respectively.
+referred to as way-partitioning and set-partitioning, respectively.
 To guarantee the data layout in set-partitioning,
-$A_2$ cannot be stored in a single continous buffer any more.
-Instead, $A_2$ is distributed to 12 continous memory segments, each of size $32KB$.
+$A_2$ cannot be stored in a single continuous buffer any more.
+Instead, $A_2$ is distributed to 12 continuous memory segments, each of size $32KB$.
 The distance from one segment to the next is equal to $wc_2=128KB$.
 %% There is no memory fragment because the segment size is a multiple of
 %% size of $A_4$ (8KB).
@@ -91,12 +91,12 @@ The distance from one segment to the next is equal to $wc_2=128KB$.
 While the set-partitioning of shared caches avoids inter-thread cache conflicts,
 it introduces some complexity to GEMM implementation
 because the GEBP kernel and the matrix packing routines
-now must work with segmented memory buffers instead of continous ones.
+now must work with segmented memory buffers instead of continuous ones.
 
 How about $B_2$, the other packed matrix use in GEBP?
 Unlike $A_2$, which is thread private,
 $B_2$ is shared among all threads and
-the packing of $B_2$ is done collabratively by all threads.
+the packing of $B_2$ is done collaboratively by all threads.
 We have two choices, privatize $B_2$ and apply the set-partitioning method,
 or fall back to conventional way-partitioning for $B_2$.
 $B_2$ can be made thread private if every thread makes
@@ -109,7 +109,7 @@ The two choices are evaluated and compared in Section~\ref{sec:evaluation}.
 
 \subsection{Formal Description}\label{subsec:formal}
 Given tiling factors $M_r$, $N_r$, $K_c$, $M_c$, $N_c$,
-and architectural details of the memory hierachy,
+and architectural details of the memory hierarchy,
 The SCP method systematically determines the
 the memory layout for packed matrices $A_2$ and $B_2$ used in GEMM.
 Memory layout of other packed matrices on lower layers are
@@ -195,7 +195,7 @@ $\mathcal{D}_s$ are first computed
 Because the memory space in $\mathcal{D}_p$ will be set-partitioned,
 extra efforts are made to ensure a proper alignment for $\mathcal{D}_p$.
 Line~\ref{line:align.init}--\ref{line:align.endfor} compute a value $align$,
-and $size_p$ is enlarged to a multile of $align$ (line~\ref{line:align}).
+and $size_p$ is enlarged to a multiple of $align$ (line~\ref{line:align}).
 $align$ is initialized with the L1 cache line size $l_1$.
 Then on each level $l$ (line~\ref{line:align.for})
 with shared non-LRU caches (line~\ref{line:align.type}),
@@ -253,7 +253,7 @@ are created (line~\ref{line:d.begin}--\ref{line:d.end}).
 Algorithm~\ref{alg:scp.phase2} shows the second phase of SCP.
 The main part is a recursive procedure $subspace$
 (line~\ref{line:subspace.begin}--\ref{line:subspace.end}).
-The $subspace$ procedure traverses the memory hierachy
+The $subspace$ procedure traverses the memory hierarchy
 to compute for each node, including the processor cores and main memory,
 a subspace of $\mathcal{D}_p$.
 $subspace$ has three input parameters, $l$ and $idx$ to
@@ -285,7 +285,7 @@ Initially, the main memory gets the whole $\mathcal{D}_p$ (line~\ref{line:memory
 and $nt_{NL+1}$ is set to $NT$ (line~\ref{line:memory.nt})
 because the main memory is shared by all threads.
 Then $subspace$ procedure starts from the main memory (line~\ref{line:subspace.root})
-and traverses the memory hierachy in a depth-first-search order.
+and traverses the memory hierarchy in a depth-first-search order.
 
 The computation of $\mathcal{D}_t^{B_2}$ is quite simple.
 Algorithm~\ref{alg:scp.phase3} divides $\mathcal{D}_s$

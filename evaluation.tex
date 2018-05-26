@@ -86,11 +86,11 @@ by comparing DGEMM performance with the same $NT$
 but different $NT_C$s.
 Figure.~\ref{fig:drawback} shows the evaluation results.
 Each curve represents a parallelism configuration.
-Different subfigures are configured with different $NT$s,
-and different curves in the same subfigure are
+Different sub-figures are configured with different $NT$s,
+and different curves in the same sub-figure are
 configured with different $NT_C$s.
 As there is only one configuration for $NT=64$ ($NC=16$, $NT_C=4$)
-and no comparation is available,
+and no comparison is available,
 results of $NT=64$ is combined with $NT=32$ in Figure.~\ref{fig:drawback-32}.
 
 \begin{table}
@@ -160,7 +160,7 @@ We evaluate SCP using the same method as in Section~\ref{subsec:drawback}.
 SCP is not evaluated with $NT_C=1$ because there is no need
 to partition the cache if $NT_C=1$.
 Figure.~\ref{fig:benefit} shows the evaluation results.
-For the purpose of comparation, results without SCP
+For the purpose of comparison, results without SCP
 (denoted as Base in the figure) are also presented,
 
 \begin{table}
@@ -255,7 +255,7 @@ which are listed and briefly described in Table.~\ref{tab:events}.
 With these hardware events,
 miss rates of L1 and L2 caches can be calculated with
 $\frac{L1M}{L1M+L1H}$ and $\frac{L2M}{L2M+L2H}$, respectively.
-The hardware events are mesured in a per-thread manner
+The hardware events are measured in a per-thread manner
 and all presented results are the average over threads.
 
 \begin{table}
@@ -360,7 +360,7 @@ In this section, we will discuss and evaluate this privatization alternative.
   \label{fig:packb}
 \end{figure}
 
-Privatization inccurs more packing overhead because
+Privatization introduces more packing overhead because
 redundant packing of $B_2$ is enforced.
 Figure.~\ref{fig:packb} shows three packing strategies for $B_2$
 in a parallelism configuration $NT_C=4$ and $NC=4$.
@@ -386,7 +386,7 @@ of that in conventional packing.
 Figure.~\ref{fig:privb} shows the evaluation results of the partial
 privatization strategy with $NT_C=4$ and $NC=4$.
 Results under other parallelism configurations are similar.
-For the purpose of comparation,
+For the purpose of comparison,
 SCP with and without privatization are both presented
 (denoted as SCP-P and SCP in Figure.~\ref{fig:privb}, respectively).
 Figure.~\ref{fig:privb.papi} shows the cache miss rates.
@@ -442,7 +442,7 @@ and the total overhead increases from $2.35\%$ to $4.72\%$.
   \end{tabular}
 \end{table}
 
-Results in this section demonstrats that
+Results in this section demonstrates that
 privatization of the shared matrix $B_2$ can further
 eliminate inter-thread cache conflicts.
 But the improvement in cache performance is very small because
