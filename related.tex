@@ -21,9 +21,7 @@ There are several approaches for obtaining optimized GEMM kernels,
 %% (1) assembly programming, (2) auto-tuning, and (3) directive-based programming,
 yielding different tradeoffs between performance and portability.
 In GotoBLAS~\cite{gotoblas}, OpenBLAS~\cite{openblas} and BLIS~\cite{blis},
-the kernel component of GEMM is 
-written by domain experts in assembly.
-In the case of auto-tuning,
+the kernel component of GEMM is written by domain experts in assembly.
 ATLAS~\cite{atlas} adopts the auto-tuning method to
 automatically generate kernels with different parameters
 in C and find the best-performing one by running them
@@ -62,7 +60,7 @@ the cache capacity and associativity
 but assume a LRU replacement policy.
 As far as we know, this paper is the first to
 address the problem of cache sharing with non-LRU replacement policies,
-and SCP serves as the first work to address this problem.
+and SCP serves as the first work to solve this problem.
 In \cite{gotogemm}, a detailed discussion on
 choosing different loop orders is given.
 GEMM are usually parallelized only at layer 3 (the $ii$ loop),

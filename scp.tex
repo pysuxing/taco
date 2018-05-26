@@ -24,7 +24,6 @@ Here, we choose $K_c=256$.
 By (\ref{eq:constraints.l2}),
 $M_c \le \lfloor (c_{L2}/es/nt_{L2} - 2 N_r K_c )/ K_c \rfloor =
 \lfloor (2MB/8B/4 - 2*8*256)/256 \rfloor = 240$.
-
 To leave space for other data structures and the program code,
 it is reasonable to shrink $M_c$ slightly, with,
 for example, $192$, $208$ and $224$ as good
@@ -97,7 +96,6 @@ What about $B_2$, the other packed matrix used in GEBP?
 Unlike $A_2$, which is thread-private,
 $B_2$ is shared among all threads and
 the packing of $B_2$ is done collaboratively by all threads.
-
 There are two choices (with different tradeoffs), (1) privatize $B_2$ and apply 
 set-partitioning and (2) 
 fall back to the conventional way-partitioning for $B_2$.
@@ -117,11 +115,10 @@ and compared in Section~\ref{sec:evaluation}.
 Given the tiling factors $M_r$, $N_r$, $K_c$, $M_c$, $N_c$,
 and architectural details of the memory hierarchy,
 SCP will systematically determine the
-the memory layout for the
-packed matrices $A_2$ and $B_2$ used in GEMM.
+the memory layout for the packed matrices $A_2$ and $B_2$ used in GEMM.
 The memory layout of the other packed matrices at
-lower layers are determined by the memory layout of
-$A_2$ and $B_2$.
+lower layers are determined once the memory layout of
+$A_2$ and $B_2$ are determined.
 We assume that the share matrix $B_2$ is packed
 in the conventional way-partitioning style.
 If desired, $B_2$ can be privatized and handled in the same way as $A_2$.
@@ -148,8 +145,6 @@ the whole address space, i.e., $\mathcal{D}_t^M \subset \mathcal{A}$.
 %% specifying the memory space it occupies.
 Generally, $\mathcal{D}_t^M$ consists of a sequence of $N_t^M$ disjoint memory segments,
 $\mathcal{D}_t^M = \{ S_0, S_1, \cdots, S_{N_t^M}\}$.
-
-%% in which $S_i \bigcap S_j = \phi$ if $i \ne j$.
 A segment is represented by its start and end addresses, $S_i = [s_i, e_i)$,
 in which $s_i < e_i \in \mathcal{A}$.
 With way-partitioning, the memory descriptor contains only one segment.

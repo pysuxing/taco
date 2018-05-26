@@ -138,7 +138,7 @@ the constraints on these tiling factors:
 \end{eqnarray}
 Here, $es$ denotes the size of a matrix element,
 e.g., 8B for a double precision floating-point number,
-and $c_l$ denotes the capacity of a register or cache at level $l$.
+and $c_l$ denotes the capacity of the register file or cache at level $l$.
 By (\ref{eq:constraints.reg}), $M_r$ and $N_r$ are so
 constrained that $M_r$ elements from $A$,
 $N_r$ elements from $B$ and $M_r \times N_r$ elements from $C$ can
@@ -246,7 +246,7 @@ because it occurs within the execution of a single thread.
 To deal with intra-thread conflicts,
 the GEBP kernel repeatedly prefetch data from $A_4$ and $B_4$ to the L1 cache
 in every iteration at layer 6 before it actually reads them in case of
-the data being evicted out accidentally.
+the data being evicted accidentally.
 As GEBP accesses the matrix data much more frequently than other
 data structures, this repeated prefetching strategy
 can reduce the penalty caused by intra-thread conflicts.
@@ -261,7 +261,6 @@ At time $t_s$, $T_0$ prefetches some data at address $addr_0$
 to cache set $\varphi_2(addr_0)$ of the shared L2 cache.
 The data will be actually read at time $t_e$.
 Then at some time $t_m$ ($t_s < t_m < t_e$),
-
 $T_1$ prefetches data at address $addr_1$ to the L2 cache.
 If $\varphi_2(addr_1)=\varphi_2(addr_0)$, then the
 data at $addr_1$ and $addr_0$ will be fetched into the same cache set.

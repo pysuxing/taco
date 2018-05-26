@@ -90,7 +90,6 @@ with the same $NT$
 but different $NT_C$'s.
 Figure~\ref{fig:drawback} shows the results.
 Each curve represents a parallelism configuration.
-
 Different subfigures are configured with different $NT$'s,
 and different curves in the same subfigure are
 configured with different $NT_C$'s.
@@ -104,11 +103,16 @@ the results for $NT=64$ and $NT=32$ are combined in Figure~\ref{fig:drawback-32}
   \label{tab:drawback}
   \begin{tabular}{cccccc}
     \toprule
-     & $NT\!\!=\!\!4$ & $NT\!\!=\!\!8$ & $NT\!\!=\!\!16$ & $NT\!\!=\!\!32$ & $NT\!\!=\!\!64$ \\
+     & $NT=4$ & $NT=8$ & $NT=16$ & $NT=32$ & $NT=64$ \\
     \midrule
-    $NT_C\!\!=\!\!1$ & 91.46 & 91.30 & 90.30 & -     & - \\   
-    $NT_C\!\!=\!\!2$ & 90.12 & 90.25 & 89.49 & 88.26 & - \\
-    $NT_C\!\!=\!\!4$ & 84.05 & 80.61 & 79.74 & 79.81 & 71.71 \\
+    $NT_C=1$ & 91.46 & 91.30 & 90.30 & -     & - \\   
+    $NT_C=2$ & 90.12 & 90.25 & 89.49 & 88.26 & - \\
+    $NT_C=4$ & 84.05 & 80.61 & 79.74 & 79.81 & 71.71 \\
+    %%  & $NT\!\!=\!\!4$ & $NT\!\!=\!\!8$ & $NT\!\!=\!\!16$ & $NT\!\!=\!\!32$ & $NT\!\!=\!\!64$ \\
+    %% \midrule
+    %% $NT_C\!\!=\!\!1$ & 91.46 & 91.30 & 90.30 & -     & - \\   
+    %% $NT_C\!\!=\!\!2$ & 90.12 & 90.25 & 89.49 & 88.26 & - \\
+    %% $NT_C\!\!=\!\!4$ & 84.05 & 80.61 & 79.74 & 79.81 & 71.71 \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -164,7 +168,6 @@ impact on DGEMM performance.
 We evaluate SCP using the same method as in Section~\ref{subsec:drawback}.
 SCP is not evaluated with $NT_C=1$ because there is no need
 to partition the cache if $NT_C=1$.
-
 Figure.~\ref{fig:benefit} shows the results.
 For comparison purposes, the results without SCP
 (denoted as Base) are also presented.
@@ -284,9 +287,8 @@ over all the threads.
 
 Figure~\ref{fig:papi} shows the miss rates of L1 and L2 data caches.  We only give the results with $NT_C=4$
 as SCP achieves the largest improvement with full cache sharing.
-Table~\ref{tab:papi} summarizes the average of the
-cache miss rates
-across the matrix sizes used.
+Table~\ref{tab:papi} summarizes the average reduction of the
+cache miss rates across the matrix sizes used.
 Under all the parallelism configurations,
 both L1 and L2 cache miss rates are reduced under
 SCP, 
@@ -348,7 +350,7 @@ also propagates to the upper level caches, too.
 In the previous evaluations, SCP only set-partitions the shared cache
 for $A_2$ matrices, which are private to threads.
 The shared $B_2$ matrix is still packed
-in a conventional way-partitioning style.
+in the conventional way-partitioning style.
 As mentioned in Section~\ref{subsec:example},
 set-partitioning can also be applied to $B_2$ after $B_2$ is privatized.
 In this section, we will discuss and evaluate this privatization alternative.
@@ -383,7 +385,6 @@ and the packing workload of thread $T_1$ is masked by z-curves.
 In the conventional packing approach, each thread takes a single task.
 In full privatization, all tasks are replicated to all threads.
 As a result, the packing overhead grows in proportion to $NT$
-
 in a full privatization strategy, which is unacceptable
 if GEMM is highly parallelized, e.g., when $NT=64$.
 Partial privatization in Figure.~\ref{fig:packb.partial}
@@ -399,7 +400,6 @@ of that in conventional packing.
 
 Figure~\ref{fig:privb} shows the results of the partial
 privatization strategy with $NT_C=4$ and $NC=4$.
-
 The results under other parallelism configurations are similar.
 For comparison purposes,
 SCP with and without privatization are both presented
