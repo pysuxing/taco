@@ -1,13 +1,14 @@
 \section{Conclusion}\label{sec:conclusion}
 In this paper, we present a shared cache partitioning method,
-SCP, to eliminate inter-thread conflicts in GEMM programs
-on architectures with shared caches.
-The basic idea is partition the shared cache into physically
+SCP, to reduce inter-thread conflicts in GEMM programs
+on architectures with shared non-LRU caches.
+The basic idea is to partition a shared cache into physically
 disjoint sets and assign different sets to different threads.
 Evaluation results show that SCP can effectively reduce
-cache misses on the shared cache (and upper level caches),
-resulting in a consideration improvement in GEMM performance
+cache misses for a shared cache (and its
+upper level caches),
+resulting in a considerable improvement in GEMM performance
 in a multi-threaded context.
-In future work, we plan to extend SCP to other dense linear
-algebra computing routines.
+%In future work, we plan to extend SCP to other dense linear
+%algebra computing routines.
 

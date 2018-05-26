@@ -5,10 +5,10 @@ Basic Linear Algebra Subprograms (BLAS) (FIXME) defines a collection
 of APIs which act as standard building blocks for dense matrix operations.
 BLAS routines are divided into 3 levels,
 level-1 for vector-vector operations,
-level-2 for matrix-vetor operations,
+level-2 for matrix-vector operations,
 and level-3 for matrix-matrix operations.
 Processor vendors often provide BLAS implementations
-highly optimized for their processors,
+that are highly optimized for their processors,
 such as Intel MKL, AMD ACML and NVIDIA cuBLAS.
 The HPC community has also contributed several high-quality
 BLAS implementations, e.g. ATLAS~\cite{atlas},
@@ -16,108 +16,128 @@ GotoBLAS~\cite{gotoblas}, OpenBLAS~\cite{openblas},
 and BLIS~\cite{blis,blisport}.
 
 Among the three levels of BLAS routines, level-3 provides the most opportunities
-for optimization because it has the highest computational complexity ($O(n^3)$).
+for optimization because it has the highest computational complexity (of $O(n^3)$).
 Among all the level-3 operations, GEneral Matrix Multiply (GEMM) is
-of the most interest because all other level-3 operations can be defined
+of the most interest because the 
+other level-3 operations can be defined
 in terms of GEMM and some level-1 and level-2 operations~\cite{gemmbased1}.
-Much effort has been spent on optimizing GEMM for different
+In the past, much effort has been spent on optimizing GEMM for different
 architectures~\cite{Liu2012,Wang2015,Volkov:2008,Cui11,blispar}.
 %% both in general algorithm and in architecture specific ways.
 
 %% GEMM performs a matrix-multiply-accumulate operation.
-Generally, an optimized GEMM implementation consists of two components,
-(1) a highly optimized kernel routine to accomplish the computation, and
+An optimized GEMM implementation consists of two components,
+(1) a highly optimized kernel routine to accomplish its
+computation, and
 (2) an overall strategy to partition the workload into small tasks
 and schedule these tasks to be executed effectively on the target processor.
 The kernel routine is a serial program performing matrix-multiply-accumulate
 on matrices from a single task.
-The overall strategy partitions the workload by tiling the loops,
+The overall strategy partitions the workload by tiling 
+the underlying loop nest
 and determines a task schedule by choosing a specific traversal order
 in the loop nest's iteration space.
 In a multi-threaded context, different tasks (loop tiles) are assigned to
 different threads to parallelize the whole operation.
-The main target of GEMM optimization is maximizing the floating-point
+The main objective of GEMM optimization is to
+maximize the floating-point
 operation throughput, measured by FLoating-point Operations Per Second ($flops$).
-On one hand, optimization of the serial kernel routine concentrates on
+For the serial kernel routine, the optimization applies
 instruction scheduling to improve instruction throughput.
-On the other hand, the overall strategy is responsible for optimizing
-memory accesses to protect the kernel from long memory latencies.
-In this paper, we focus on optimizing the memory access of GEMM.
+For the workload partitioning, the optimization 
+reorganizes memory accesses to reduce long memory latencies for
+the kernel.
+In this paper, we focus on optimizing the memory 
+accesses for GEMM.
 
-Currently, two techniques, software prefetching and data packing,
-are widely adopted in GEMM implementations to speed up memory accesses.
+Two techniques, software prefetching and data packing,
+have been widely used in GEMM implementations to speed up memory accesses.
 Software prefetch instructions are utilized
-to load data into cache before they are used, so memory accesses will not
-cause long latencies and floating-point instructions can execute at peak throughput.
+to load data into cache before they are used, in 
+order to ensure that memory accesses will not incur
+long latencies and floating-point instructions
+can execute at peak throughput.
 To better exploit the capability of on-chip caches,
-matrix blocks the kernel operates on are packed into continous memory buffer
-whose footprint is within the cache capacity before the kernel routine is called.
+matrices are blocked and then packed into continuous memory buffers
+that can fit into the caches under consideration
+before the kernel routine is called.
 Because GEMM is a computational intensive operation whose
 arithmetic complexity is $O(n^3)$ and memory complexity is $O(n^2)$,
 the overhead caused by data packing is negligible when
 the input matrices are large~\cite{gotogemm}.
 
-The software prefetching and data packing approach meet a challenge
-when working on architectures with non-LRU shared caches.
-In traditional high-performance processors, e.g. the Intel Xeon series,
+However, software prefetching and data packing cannot be
+effectively
+applied to architectures with non-LRU shared caches.
+In traditional high-performance processors, e.g.,
+the Intel Xeon series,
 both L1 and L2 caches are private to processor cores
 and LRU replacement policy is adopted.
 Without considering the last level cache (LLC),
-threads running on different cores prefetch their data into
+the threads running on different cores prefetch their data into
 different caches, and private data of different threads
 cannot cause conflict cache misses.
-This is not the case if caches are shared by several processor cores.
-There are chances that a cache line prefetched by one thread
-get evicted out before its lifetime ends because another thread prefetches
+This is no longer the case if caches are shared by several processor cores.
+In this case, a cache line prefetched by one thread
+may be evicted before its lifetime ends because another thread prefetches
 another cache line into the same cache set.
-A simple solution would be shrinking the size of packed matrix
-so data used by several threads can simultaneously reside in the shared cache.
+A simple-minded solution would be to reduce 
+the size of a packed matrix
+so that the data used by several threads can simultaneously reside in a shared cache.
 Due to the nature of set-associative caches,
 this solution cannot completely eliminate inter-thread cache conflicts,
 especially if the shared cache has a non-LRU replacement policy.
-Evaluation results show that inter-thread cache conflicts on non-LRU shared caches
+Our evaluation shows that inter-thread cache conflicts
+in non-LRU shared caches
 can heavily hurt GEMM performance,
-even with packed matrices shrinked to fit into the cache.
+even with packed matrices reduced to fit into the cache.
 
 Following the trend in recent decades, modern architecture design
 is introducing more and more cores on a single processor chip.
 To reduce cost of on-chip cache memories and coherence networks,
-shared cache may become common in future many-core processors.
-And non-LRU replacement policies, for example, psudo-random,
+shared caches may become common in future many-core processors.
+In addition, non-LRU replacement policies, for example, pseudo-random,
 may also be used to further reduce the cache design complexity.
-Indeed, some high-performance processors based on ARM technology,
+Indeed, some high-performance processors based on the
+ARM technology,
 have already adopted this design. (FIXME list the processors)
-As a consequence, a better solution to the inter-thread cache conflicts problem
-on non-LRU shared caches is meaningful.
+As a result, developing a better solution to reduce
+the inter-thread cache conflicts 
+for non-LRU shared caches is important.
 
-In this paper, we present a Shared Cache Partitioning (SCP) method,
+In this paper, we present a Shared Cache Partitioning (SCP) method
 to reduce inter-thread cache conflicts on architectures with non-LRU share caches.
-The key idea is partition the share cache into physically disjoint sets
+The key idea is to partition a
+share cache into physically disjoint sets
 and assign different sets to different threads. This can be achieved by
-exploiting the memory mapping mechanisim of set-associative caches.
+exploiting the memory mapping mechanism of set-associative caches.
 
-The main contributions of this paper are:
+To the best of our knowledge, SCP represents
+the first work addressing
+the inter-thread cache conflicts problem on
+architectures with non-LRU share caches.
+
+The main contributions of this paper are as follows:
 \begin{itemize}
 \item We present a quantitative analysis of the negative effect of inter-thread cache
   conflicts on GEMM performance.
 \item We propose SCP, a method for solving the inter-thread cache conflicts
   problem on architectures with non-LRU shared caches.
-\item We implement SCP in the OpenBLAS library and evaluate it on Phytium 2000+,
+\item We have implemented SCP in the OpenBLAS library and evaluated it on Phytium 2000+,
   an emerging high-performance processor based on ARM's AArch64 architecture.
   Phytium 2000+ has 64 cores, private LRU L1 caches
-  and psudo-random shared L2 caches.
-  Evaluation results show that GEMM performance improves consistently
-  under various parallelism configurations, by an amount of $2.75\%$--$6.91\%$.
+  and pseudo-random shared L2 caches.
+  Our evaluation shows that SCP can improve the
+  GEMM performance consistently
+  under various parallelism configurations, by $2.75\%$--$6.91\%$.
 \end{itemize}
 
-To the best of our knowledge, SCP is the first proposal targeted at
-solving the inter-thread cache conflicts problem on
-architectures with non-LRU share caches.
 
 The rest of the paper is organized as follows.
-Section~\ref{sec:background} gives some background on GEMM and
-the cache conflicts problem in GEMM problem.
-Section~\ref{sec:scp} illustrates the SCP method.
-Section~\ref{sec:evaluation} presents evaluation results.
+Section~\ref{sec:background} gives some background on GEMM and discusses
+the cache conflicts incurred.
+Section~\ref{sec:scp} introduces the SCP method.
+Section~\ref{sec:evaluation} presents and
+analyzes our experimental results.
 Section~\ref{sec:related} reviews the related work.
 Finally, Section~\ref{sec:conclusion} concludes.
