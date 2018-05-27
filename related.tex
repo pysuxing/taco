@@ -3,7 +3,7 @@ The idea that all level-3 BLAS operations can be built
 on top of 
 a high-performance GEMM implementation was first proposed
 in~\cite{gemmbased1,gemmbased2}.
-The GotoBLAS library~\cite{gotoblas}, and its successor OpenBLAS~\cite{openblas},
+The GotoBLAS library~\cite{gotoblas} and its successor OpenBLAS~\cite{openblas},
 are instantiated based on this insight.
 So optimizing GEMM has always been the central task in developing
 dense linear algebra software.
@@ -40,6 +40,7 @@ including SIMD vectorization~\cite{Larsen:2000,Zhou:2016,Zhou:2016b,
   Eichenberger2004,GCCSLP2007},
 polyhedral optimization~\cite{Bondhugula2008A,Kong:2013}, 
 and loop tiling~\cite{Lam1991,Spampinato:2014,Xue00}.
+Recently,
 \textsc{Poca}~\cite{poca} leverages a wide range of architecture-specific
 abstractions available in the LLVM compiler infrastructure
 and proposes a series of domain-specific yet architecture-independent optimizations
@@ -57,7 +58,7 @@ Analytic techniques~\cite{analytic1,analytic2,blisanalytic}
 can also be used instead of auto-tuning.
 These analytic methods generally take into consideration
 the cache capacity and associativity
-but assume a LRU replacement policy.
+but assume an LRU replacement policy.
 As far as we know, this paper is the first to
 address the problem of cache sharing with non-LRU replacement policies,
 and SCP serves as the first work to solve this problem.
@@ -66,7 +67,7 @@ choosing different loop orders is given.
 GEMM are usually parallelized only at layer 3 (the $ii$ loop),
 but all loops along the $M$ and $N$ matrix dimensions
 are potentially parallelizable.
-BLIS\cite{blispar} allows developers to specify a sophisticated configuration
+BLIS~\cite{blispar} allows developers to specify a sophisticated configuration
 so that more than one loops at layers 1, 3, 4 and 5
 can be simultaneously parallelized.
 This nested parallelization is well suited to complex architecture features

@@ -11,13 +11,13 @@ we give the algorithms in our SCP method.
 \subsection{An Example}\label{subsec:example}
 
 
-Suppose we want to implement a double precision GEMM (DGEMM) on
-the 4-core processor, where $es=8B$.
+Suppose we want to implement a double-precision GEMM (DGEMM) on
+our 4-core example processor, where $es=8B$.
 We now determine the tiling factors used based on
 the constraints (\ref{eq:constraints.reg}) -- (\ref{eq:constraints.l3}).
 Many solutions for ($M_r$, $N_r$) can satisfy (\ref{eq:constraints.reg}), including
 $(4,8)$, $(8,4)$, $(6,8)$, and $(8,6)$.
-Auto tuning returns $M_r = 4$ and $N_r = 8$ as the best.
+A tuning process returns $M_r = 4$ and $N_r = 8$ as the best.
 By (\ref{eq:constraints.l1}),
 $K_c \le \lfloor c_{L1}/es/nt_{L1}/(N_r + 2 M_r) \rfloor = \lfloor 32KB/8B/1/16 \rfloor = 256$.
 Here, we choose $K_c=256$.
@@ -25,14 +25,14 @@ By (\ref{eq:constraints.l2}),
 $M_c \le \lfloor (c_{L2}/es/nt_{L2} - 2 N_r K_c )/ K_c \rfloor =
 \lfloor (2MB/8B/4 - 2*8*256)/256 \rfloor = 240$.
 To leave space for other data structures and the program code,
-it is reasonable to shrink $M_c$ slightly, with,
+it is reasonable to shrink $M_c$ slightly, leaving,
 for example, $192$, $208$ and $224$ as good
 candidates. Again, a turning process yields
 $M_c = 192$.
 As there is no L3 cache, (\ref{eq:constraints.l3}) can be ignored
 and $N_c$ can be given a large value.
 Here, we choose $N_c = 1024NT = 4096$.
-With these tiling factors determined, the sizes of packed matrices
+Given these tiling factors, the sizes of packed matrices
 can be calculated. Table.~\ref{tab:msizes} lists
 the sizes of various packed matrices used.
 
@@ -63,19 +63,20 @@ the sizes of various packed matrices used.
     \label{fig:partition.segmented}
     \includegraphics[width=.4\textwidth]{figures/spart}
   }
-  \caption{Partition styles of the shared L2 cache (n=16, ns=2048)}
+  \caption{Partitioning styles for the shared L2 cache (n=16, ns=2048)}
   \label{fig:partition}
 \end{figure}
 
 Each $A_2$ is packed into a single continuous buffer.
 Figure.~\ref{fig:partition.conventional} shows how the
-$A_2$ instances of 4 threads are distributed in the shared 16-way L2 cache.
+$A_2$ instances of four threads are distributed in the shared 16-way L2 cache.
 Every cache set $s \in [0,2048)$ contains
-data from all 4 $A_2$ instances,
+data from all the four $A_2$ instances,
 potentially leading to inter-thread cache conflicts.
 What if the $A_2$ matrices are distributed in the way shown in
-Figure~\ref{fig:partition.segmented}?
-$A_2$ of different threads live in strictly disjoint cache sets, enabling
+Figure~\ref{fig:partition.segmented}? In this case,
+the different $A_2$ instances from different threads will
+reside in strictly disjoint cache sets, enabling
 the inter-thread cache conflicts caused by $A_2$ to be
 eliminated completely!
 
@@ -85,7 +86,7 @@ referred to as \emph{way-partitioning} and \emph{set-partitioning}, respectively
 To obtain the data layout in set-partitioning,
 $A_2$ can no longer be stored in a single continuous buffer.
 Instead, $A_2$ will be distributed to 12 continuous memory segments, each of size $32KB$.
-The distance from one segment to the next is equal to $wc_2=128KB$.
+The distance from one segment to the next is $wc_2=128KB$.
 While avoiding inter-thread cache conflicts,
 set-partitioning
 introduces some complexity to GEMM implementations
@@ -94,17 +95,20 @@ now must work with segmented memory buffers instead of continuous ones.
 
 What about $B_2$, the other packed matrix used in GEBP?
 Unlike $A_2$, which is thread-private,
-$B_2$ is shared among all threads and
-the packing of $B_2$ is done collaboratively by all threads.
+$B_2$ is shared among all the threads and
+the packing of $B_2$ is done collaboratively by all
+the threads.
 There are two choices (with different tradeoffs), (1) privatize $B_2$ and apply 
 set-partitioning and (2) 
-fall back to the conventional way-partitioning for $B_2$.
+fall back to way-partitioning for $B_2$ (as done
+traditionally).
 $B_2$ can be made thread-private if every thread makes
 its own pack of the whole $B_1$ matrix.
 The first choice achieves a full per-thread data isolation
 at the expense of redundant packing overhead.
 The second choice avoids the extra overhead in both time and space
-but potentially increases the inter-thread conflicts caused
+but potentially increases the inter-thread cache
+conflicts caused
 by the shared $B_2$ matrix.
 In this work, these two choices are evaluated
 and compared in Section~\ref{sec:evaluation}.
@@ -114,28 +118,28 @@ and compared in Section~\ref{sec:evaluation}.
 
 Given the tiling factors $M_r$, $N_r$, $K_c$, $M_c$, $N_c$,
 and architectural details of the memory hierarchy,
-SCP will systematically determine the
-the memory layout for the packed matrices $A_2$ and $B_2$ used in GEMM.
+SCP will systematically determine 
+the memory layout for the packed matrices $A_2$ and $B_2$ in GEMM.
 The memory layout of the other packed matrices at
 lower layers are determined once the memory layout of
-$A_2$ and $B_2$ are determined.
+$A_2$ and $B_2$ is determined.
 We assume that the share matrix $B_2$ is packed
 in the conventional way-partitioning style.
 If desired, $B_2$ can be privatized and handled in the same way as $A_2$.
 
-we make a few standard assumptions, which usually
-hold for the architecture considered by SCP:
+We make a few standard assumptions, which usually
+hold for the architecture considered:
 \begin{itemize}
-\item The architecture has 2 or 3 levels of cache; %% i.e. $NL=2$ or $NL=3$
+\item The architecture has 2 or 3 levels of caches; %% i.e. $NL=2$ or $NL=3$
 \item All caches are inclusive set-associative caches; %% i.e. $n_l \ge 2$ for $l \in [1, NL]$
-\item Caches at the same level are homogeneous; and %% i.e. $L_l^i = L_l^j$ for $i \ne j$, $l \in [1, NL]$.
+\item The caches at the same level are homogeneous; and %% i.e. $L_l^i = L_l^j$ for $i \ne j$, $l \in [1, NL]$.
 \item A cache's way-capacity is a multiple of the sum of way-capacities of its children,
 i.e., $(\frac{nt_l}{nt_{l-1}} \cdot wc_{l-1}) \mid wc_l$.
 \end{itemize}
 
 We use a memory descriptor $\mathcal{D}_t^M$ to specify 
 the memory space occupied by a 
-packed matrix $M$ used by thread $t$.
+packed matrix $M$ used by a thread $t$.
 The memory descriptor is essentially a subspace of
 the whole address space, i.e., $\mathcal{D}_t^M \subset \mathcal{A}$.
 %% The memory layout of a packed matrix is described by a memory descriptor,
@@ -146,13 +150,14 @@ the whole address space, i.e., $\mathcal{D}_t^M \subset \mathcal{A}$.
 Generally, $\mathcal{D}_t^M$ consists of a sequence of $N_t^M$ disjoint memory segments,
 $\mathcal{D}_t^M = \{ S_0, S_1, \cdots, S_{N_t^M}\}$.
 A segment is represented by its start and end addresses, $S_i = [s_i, e_i)$,
-in which $s_i < e_i \in \mathcal{A}$.
+where $s_i < e_i \in \mathcal{A}$.
 With way-partitioning, the memory descriptor contains only one segment.
 With set-partitioning,
 the memory descriptor contains a sequence of equally strided segments.
 
 \begin{algorithm}
-  \caption{SCP phase 1: allocate memory buffers}
+  \caption{SCP (Phase 1): allocating memory buffers
+  for $A_2$ and $B_2$}
   \label{alg:scp.phase1}
   \begin{algorithmic}[1]
     \REQUIRE $L_l = (c_l,l_l,n_l,nt_l)$ for $l \in [0, NL]$, $NT$,
@@ -175,23 +180,26 @@ the memory descriptor contains a sequence of equally strided segments.
   \end{algorithmic}
 \end{algorithm}
 
-SCP runs in three phases.
-The first phase allocates memory buffers for all $A_2$ and $B_2$
+SCP runs in three phases, as shown in 
+Algorithms~\ref{alg:scp.phase1} -- \ref{alg:scp.phase3},
+respectively.  The first phase allocates the
+memory buffers for all $A_2$ and $B_2$
 instances used in GEMM. There are two buffers, $\mathcal{D}_p$ and $\mathcal{D}_s$,
 for storing private and shared matrices, respectively.
-The second phase computes memory descriptors for $A_2$ instances
+The second phase computes the 
+memory descriptors for $A_2$ instances
 by partitioning $\mathcal{D}_p$ into $NT$ thread-private buffers
 $\mathcal{D}_t^{A_2}$ , where $t \in [0, NT)$.
-Buffers of different threads are disjoint,
+The buffers of different threads are disjoint,
 i.e., $\mathcal{D}_i^{A_2} \bigcap \mathcal{D}_j^{A_2} = \emptyset$ if $i \ne j$.
-The third phase computes memory descriptors for $B_2$.
-Because is $B_2$ is shared among all threads,
+The third phase computes the
+memory descriptors for $B_2$.
+Because $B_2$ is shared among all the threads,
 $\mathcal{D}_t^{B_2}$ does not represent the whole $B_2$ matrix,
-but the part (of size $\frac{es N_c K_c}{NT}$) which is packed by thread $t$.
-The work flow of these three phases is listed
-in Algorithms~\ref{alg:scp.phase1} -- \ref{alg:scp.phase3}.
+but the part (of size $\frac{es N_c K_c}{NT}$),
+which is packed by thread $t$.
 
-In Algorithm~\ref{alg:scp.phase1},
+In Algorithm~\ref{alg:scp.phase1} (Phase 1),
 the per-thread sizes for memory buffers $\mathcal{D}_p$ and
 $\mathcal{D}_s$ are computed
 (lines~\ref{line:size.p} -- \ref{line:size.s}).
@@ -218,7 +226,7 @@ are created (line~\ref{line:d.begin} -- \ref{line:d.end}).
   \renewcommand{\algorithmicprint}{\textbf{call}}
   \renewcommand{\algorithmicwhile}{\textbf{procedure}}
   \renewcommand{\algorithmicendwhile}{\textbf{end procedure}}
-  \caption{SCP phase 2: compute descriptors for $A_2$}
+  \caption{SCP (Phase 2): computing the memory descriptors for $A_2$}
   \label{alg:scp.phase2}
   \begin{algorithmic}[1]
     \REQUIRE $L_l = (c_l,l_l,n_l,nt_l)$ for $l \in [0, NL]$, $\mathcal{D}_p$, $NT$
@@ -254,14 +262,13 @@ are created (line~\ref{line:d.begin} -- \ref{line:d.end}).
   \end{algorithmic}
 \end{algorithm}
 
-Algorithm~\ref{alg:scp.phase2} describes the second phase of SCP.
-The main component is a recursive procedure $subspace$
+In Algorithm~\ref{alg:scp.phase2} (Phase 2),
+the main component is a recursive procedure $subspace$
 (lines~\ref{line:subspace.begin} -- \ref{line:subspace.end}).
-The $subspace$ procedure traverses the memory hierarchy
+This procedure traverses the memory hierarchy
 to compute for each node, including the processor cores and main memory,
 a subspace of $\mathcal{D}_p$.
-This procedure
-has three input parameters, $l$ and $idx$ for
+There are three input parameters, $l$ and $idx$ for
 identifying the node on which it is running,
 and a subspace $\mathcal{D}_l^{idx} \subset \mathcal{D}_p$ allocated to the node. 
 The functionality of $subspace$ is to partition $\mathcal{D}_l^{idx}$
@@ -283,30 +290,31 @@ a temporal memory space $\mathcal{D}_{temp}$ (line~\ref{line:childspace}).
 The if-else branch (lines~\ref{line:if} -- \ref{line:endif})
 represents two distinct ways for computing
 $\mathcal{D}_{temp}$.
-If the node is main memory or a LRU cache (line~\ref{line:if}),
+If the node is main memory or an LRU cache (line~\ref{line:if}),
 $\mathcal{D}_l^{idx}$ is partitioned in the conventional
 way-partitioning style.
 Otherwise, the else branch (line~\ref{line:else}) performs
 a set-partitioning on $\mathcal{D}_l^{idx}$.
-Initially, the main memory gets the whole $\mathcal{D}_p$ (line~\ref{line:memory.d})
+Initially, the main memory is the whole $\mathcal{D}_p$ (line~\ref{line:memory.d})
 and $nt_{NL+1}$ is set to $NT$ (line~\ref{line:memory.nt})
-because the main memory is shared by all threads.
+because the main memory is shared by all the threads.
 Then $subspace$ procedure starts from the main memory (line~\ref{line:subspace.root})
 and traverses the memory hierarchy in a depth-first-search order.
 
-The computation of $\mathcal{D}_t^{B_2}$ is quite simple.
-Algorithm~\ref{alg:scp.phase3} divides $\mathcal{D}_s$
+In Algorithm~\ref{alg:scp.phase3} (Phase 3),
+the computation of $\mathcal{D}_t^{B_2}$ is quite 
+simple. This is done by dividing $\mathcal{D}_s$
 into $NT$ partitions, one for each thread.
 First, the range of $\mathcal{D}_s$ is obtained
 (lines~\ref{line:lb} -- \ref{line:ub}) and
 the capacity of $\mathcal{D}_s$ is equally
 divided among the $NT$ threads (line~\ref{line:len}).
 Then $\mathcal{D}_s$ is partitioned in a way-partitioning style
-and each thread $t$ get buffer space for its part in $B_2$
-(line~\ref{line:thread.for}--\ref{line:thread.forend}).
+and each thread $t$ obtains the buffer space for its part in $B_2$
+(lines~\ref{line:thread.for} -- \ref{line:thread.forend}).
 
 \begin{algorithm}
-  \caption{SCP phase 3: compute descriptors for $B_2$}
+  \caption{SCP (Phase 3): computing the memory descriptors for $B_2$}
   \label{alg:scp.phase3}
   \begin{algorithmic}[1]
     \REQUIRE $L_l = (c_l,l_l,n_l,nt_l)$ for $l \in [0, NL]$, $\mathcal{D}_s$

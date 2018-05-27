@@ -24,20 +24,22 @@ relies on the DGEMM variant.
 
 In our evaluation, we use the tiling factors
 computed as in Section~\ref{subsec:example}:
-$M_r = 4$, $N_r = 8$, $K_c = 256$, $M_c = 192$, $N_c = 1024NT$.
-The parallelism is controlled by two parameters,
+$M_r = 4$, $N_r = 8$, $K_c = 256$, $M_c = 192$, $N_c = 1024NT$,
+as this combination causes GEMM to deliver the best performance 
+when SCP is not used.
+The degree of parallelism is controlled by two parameters,
 the number of active clusters $NC$
 and the number of active threads per cluster $NT_C$.
-The total number of threads is $NT = NC \cdot NT_C$.
+The total number of threads is $NT = NC \times NT_C$.
 For the Phytium 2000+ processor, we have
 $NC \in [1, 16]$ and $NT_C \in [1, 4]$. 
-Generally, DGEMM performance is presented in $flops$.
+Generally, the DGEMM performance is measured in $flops$.
 As $NT$ varies in our evaluation,
-we use another metric derived from $flops$,
+we also  use another metric derived from $flops$,
 the average thread efficiency,
 to describe our performance results consistently.
 The average thread efficiency is a normalized value computed as
-$E_{avg} = flops / (NT \cdot \widehat{flops})$,
+$E_{avg} = flops / (NT \times cdot \widehat{flops})$,
 where $\widehat{flops}$ stands for the theoretical performance
 peak of a single core.
 %% \begin{equation*}
@@ -51,7 +53,7 @@ the penalty caused by cache sharing
 (Section~\ref{subsec:benefit}), conduct a 
 quantitative analysis of the cache miss rates
 (Section~\ref{subsec:analysis}), and
-discuss the privatization of shared matrix $B_2$
+discuss the privatization of the shared matrix $B_2$
 (Section~\ref{subsec:privb}).
 %% Three versions of DGEMM are evaluated:
 %% (1) Base, the baseline version,
@@ -83,18 +85,19 @@ discuss the privatization of shared matrix $B_2$
   \label{fig:drawback}
 \end{figure}
 
-As the L2 cache is shared by cores inside a cluster,
-the impact of cache sharing can be demonstrated
+In a cluster, the L2 cache is shared by its four cores.
+The impact of cache sharing can be demonstrated
 by comparing the DGEMM performance results achieved
 with the same $NT$
 but different $NT_C$'s.
 Figure~\ref{fig:drawback} shows the results.
-Each curve represents a parallelism configuration.
+Each curve represents a parallelization configuration.
 Different subfigures are configured with different $NT$'s,
 and different curves in the same subfigure are
 configured with different $NT_C$'s.
-As there is only one configuration for $NT=64$ ($NC=16$ and $NT_C=4$)
-and no comparison is available,
+As there is only one configuration for $NT=64$,
+($NC=16$ and $NT_C=4$),
+no comparison is available. Thus,
 the results for $NT=64$ and $NT=32$ are combined in Figure~\ref{fig:drawback-32}.
 
 \begin{table}
@@ -117,7 +120,7 @@ the results for $NT=64$ and $NT=32$ are combined in Figure~\ref{fig:drawback-32}
   \end{tabular}
 \end{table}
 
-We can see that for all $NT$'s, $NT_C=1$ achieves the 
+For all $NT$'s, $NT_C=1$ achieves the 
 best performance, followed by 
 $NT_C=2$, and $NT_C=4$ comes at the lowest efficiency.
 Table~\ref{tab:drawback} summarizes the average value
@@ -134,7 +137,7 @@ $E_{avg}$ drops by $14.19\%$ from
 $NT=4$ to $NT=64$.
 
 This shows clearly that cache sharing has a considerable
-impact on DGEMM performance. 
+impact on the DGEMM performance. 
 
 \subsection{Effectiveness of SCP}\label{subsec:benefit}
 
@@ -202,9 +205,9 @@ For comparison purposes, the results without SCP
 %%   \end{tabular}
 %% \end{table}
 
-Under all the parallelism configurations, 
+Under all the parallelization configurations, 
 SCP performs better than Base
-consistently over all the matrix sizes evaluated.
+consistently across all the matrix sizes evaluated.
 Table~\ref{tab:win} summarizes the performance improvement of SCP over Base.
 %% Table~\ref{tab:benefit} summarizes the average value
 %% of $E_{avg}$ in SCP evaluation.
@@ -218,7 +221,7 @@ by $1.7\%$ -- $1.8\%$.
 The performance gap becomes larger with $NT_C=4$,
 ranging from $2.75\%$ to $6.91\%$.
 The largest performance gain, $6.91\%$, which is a considerable improvement,
-is observed under the maximum parallelism $NT=64$.
+is observed under the maximum parallelism with $NT=64$.
 %% Looking at Table~\ref{tab:benefit} vertically,
 %% we can see that SCP still cannot fully eliminate the impact
 %% of cache sharing.
@@ -257,7 +260,7 @@ is observed under the maximum parallelism $NT=64$.
 
 To understand why SCP outperforms Base and
 why SCP is effective in reducing
-inter-thread conflicts, 
+inter-thread cache conflicts, 
 we use the PAPI profiling tool~\cite{papi} to
 analyze the cache behavior of GEMM. A total of 
 four cache-related hardware events are counted,
@@ -265,7 +268,8 @@ which are listed and briefly described in Table~\ref{tab:events}.
 Based on these hardware events, the
 miss rates of L1 and L2 caches can be estimated  as 
 $\frac{L1M}{L1M+L1H}$ and $\frac{L2M}{L2M+L2H}$, respectively.
-The hardware events are measured in a per-thread manner
+In this analysis,
+the hardware events are measured in a per-thread manner
 and all the results are the average measurements
 over all the threads.
 
@@ -285,35 +289,38 @@ over all the threads.
   \end{tabular}
 \end{table}
 
-Figure~\ref{fig:papi} shows the miss rates of L1 and L2 data caches.  We only give the results with $NT_C=4$
+Figure~\ref{fig:papi} shows the miss rates of L1 and L2 data caches.
+We only give the results with $NT_C=4$
 as SCP achieves the largest improvement with full cache sharing.
-Table~\ref{tab:papi} summarizes the average reduction of the
-cache miss rates across the matrix sizes used.
-Under all the parallelism configurations,
-both L1 and L2 cache miss rates are reduced under
-SCP, 
+Table~\ref{tab:papi} summarizes their
+average reductions across the matrix sizes used.
+Under all the parallelization configurations,
+both L1 and L2 cache miss rates are reduced under SCP, 
 by roughly $13\%$ for L1 and nearly $10\%$ for L2.
 
 For the Phytium 2000+ processor whose L1 caches are private,
 only L2 caches are specially handled by SCP.
-The miss rates for both L1 and L2 caches
+However,
+the miss rates for both L1 and L2 caches
 are reduced effectively by SCP.
 While a reduction on the L2 miss rate is expected,
 why is the L1 miss rate also reduced? In this processor,
 every L2 cache is inclusive.
 The conflict misses for the L2 cache not only cause
 the data to be evicted from L2,
-but also invalidate the evicted data's copy in all upper level L1 caches,
+but also invalidate the evicted data's copy in all its
+upper level L1 caches,
 resulting in more L1 cache misses.
-In general, conflict misses on an inclusive cache can affect
-the performance of all upper level caches. As a 
-result, improving the L2 miss rate also improves the
-L1 miss rate.
+In general, the conflict misses for
+an inclusive cache can affect
+the performance of all its upper level caches.
+As a result, improving the miss rate of a shared L2 cache
+also improves the miss rates of all its upper level L1 caches.
 
 Our results show that SCP can effectively
 reduce the conflict misses in shared L2 caches.
 In addition, the performance benefit thus obtained
-also propagates to the upper level caches, too.
+also propagates to their upper level caches, too.
 
 \begin{table}
   \centering
@@ -347,13 +354,13 @@ also propagates to the upper level caches, too.
 %% \end{table}
 
 \subsection{Privatization of Shared Matrix}\label{subsec:privb}
-In the previous evaluations, SCP only set-partitions the shared cache
+In the previous evaluations, SCP only set-partitions the shared caches
 for $A_2$ matrices, which are private to threads.
 The shared $B_2$ matrix is still packed
 in the conventional way-partitioning style.
 As mentioned in Section~\ref{subsec:example},
 set-partitioning can also be applied to $B_2$ after $B_2$ is privatized.
-In this section, we will discuss and evaluate this privatization alternative.
+In this section, we discuss and evaluate this privatization alternative.
 
 \begin{figure}
   \centering
@@ -375,56 +382,67 @@ In this section, we will discuss and evaluate this privatization alternative.
 \end{figure}
 
 Privatization incurs more packing overhead because
-redundant packing of $B_2$ is enforced.
+the packing of $B_2$ must be done redundantly.
 Figure~\ref{fig:packb} shows three packing strategies for $B_2$
-in a parallelism configuration specified by
+in a parallelization configuration specified by
 $NT_C=4$ and $NC=4$.
-The whole packing workload of $B_2$ is divided into 16 tasks
-and the packing workload of thread $T_1$ is masked by z-curves. 
+In each case, the entire packing workload of $B_2$ is divided into 16 tasks.
+So only the packing workload in one thread, $T_1$, 
+which is highlighted by the z-curves (as shown), is illustrated.
 %% and the task assignment is annoted in Figure~\ref{fig:packb}.
-In the conventional packing approach, each thread takes a single task.
-In full privatization, all tasks are replicated to all threads.
-As a result, the packing overhead grows in proportion to $NT$
-in a full privatization strategy, which is unacceptable
+In the conventional packing approach
+(Figure~\ref{fig:packb.conventional}),
+each thread takes a single task.
+In full privatization
+(Figure~\ref{fig:packb.full}),
+all tasks are replicated to all
+the threads.
+As a result, the packing overhead grows in proportion to $NT$, which is unacceptable
 if GEMM is highly parallelized, e.g., when $NT=64$.
-Partial privatization in Figure.~\ref{fig:packb.partial}
-offers an alternative to full privatization.
-In partial privatization, privatization only occurs inside
+In partial privatization 
+(Figure~\ref{fig:packb.partial}), which is 
+an alternative to full privatization,
+privatization only occurs inside
 a cluster so that the tasks for one cluster need not to be
-replicated to other clusters.
-Consequently,  the extra packing overhead of the partial privatization
-strategy is bounded by $NT_C$.
-For example, on Phytium 2000+, overhead of packing $B_2$
+replicated in the other clusters.
+In this case, the extra packing overhead
+is bounded by $NT_C$.
+For example, on Phytium 2000+, the
+overhead of packing $B_2$
 in partial privatization is limited to 4 times
-of that in conventional packing.
+of that in the conventional packing approach.
 
-Figure~\ref{fig:privb} shows the results of the partial
-privatization strategy with $NT_C=4$ and $NC=4$.
-The results under other parallelism configurations are similar.
+Figure~\ref{fig:privb} shows the results for partial
+privatization with $NT_C=4$ and $NC=4$.
+The results for the other 
+configurations are similar.
 For comparison purposes,
-SCP with and without privatization are both presented
-(denoted as SCP-P and SCP in Figure~\ref{fig:privb}, respectively).
-Figure~\ref{fig:privb.papi} shows the cache miss rates.
-Privatization achieves slightly lower miss rates for
-both L1 and L2 caches.
-Figure~\ref{fig:privb.ate} shows the average thread efficiency.
-Despite its lower cache miss rates,
-privatization suffers a performance loss compared to SCP.
-Why is there a performance drop when cache miss rates 
-are reduced?
-The reason lies in the extra packing overhead introduced by privatization.
-Figure~\ref{fig:privb.breakdown} shows the occupancy
-ratios of the overall execution times for various overheads.
-Overheads in GEMM include
+SCP with and without privatization,
+denoted as SCP-P and SCP, respectively,
+are given in Figure~\ref{fig:privb}.
+Figure~\ref{fig:privb.papi} shows the L1 and L2
+cache miss rates, which are 
+slightly lower with privatization (SCP-P) than without
+(SCP). Figure~\ref{fig:privb.ate} shows the average thread efficiency.
+Despite its lower L1 and L2 cache miss rates,
+privatization (SCP-P) suffers a performance loss
+(relative to SCP) due to 
+the extra packing overhead introduced by privatization.
+Figure~\ref{fig:privb.breakdown} compares the
+three types of major overheads in percentage terms 
+over the total execution time, including
 (1) packing of $A_2$, (2) packing of $B_2$,
 and (3) synchronization.
-While SCP-P involves roughly the same overheads in
-packing $A_2$ and synchronization as SCP,
-it spends much more time in packing $B_2$.
-Table~\ref{tab:breakdown} gives a breakdown of the
-execution time, indicating that the overhead for packing $B_2$
+While behaving similarly as SCP
+in (1) and (3), SCP-P is worse than SCP in (2).
+To understand this further,
+Table~\ref{tab:breakdown} gives a breakdown of each's
+execution time in terms of (1) -- (3) and the
+computation time of GEBP. As
+the overhead for packing $B_2$
 is multiplied by a factor of $NT_C=4$,
-and the total overhead increases from $2.35\%$ to $4.72\%$.
+the total overhead has thus increased
+from $2.35\%$ (under SCP) to $4.72\%$ (under SCP-P).
 
 \begin{figure}
   \centering
@@ -436,7 +454,7 @@ and the total overhead increases from $2.35\%$ to $4.72\%$.
     \label{fig:privb.ate}
     \includegraphics[width=.31\textwidth]{figures/privb-ate}
   }
-  \subfigure[Executing time breakdown]{
+  \subfigure[Execution time breakdown]{
     \label{fig:privb.breakdown}
     \includegraphics[width=.65\textwidth]{figures/privb-breakdown}
   }
@@ -446,7 +464,7 @@ and the total overhead increases from $2.35\%$ to $4.72\%$.
 
 \begin{table}
   \centering
-  \caption{Executing time breakdown with $NT_C=4$ and $NC=4$}
+  \caption{Execution time breakdown with $NT_C=4$ and $NC=4$}
   \label{tab:breakdown}
   \setlength{\tabcolsep}{3.5pt}
   \begin{tabular}{lcccc}

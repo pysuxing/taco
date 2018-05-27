@@ -1,15 +1,16 @@
 \section{Introduction}\label{sec:intro}
 Dense linear algebra libraries are the most fundamental software in
 scientific and engineering computing domains.
-Basic Linear Algebra Subprograms (BLAS)~\cite{blas}  defines a collection
+Basic Linear Algebra Subprograms (BLAS)~\cite{blas}  
+define a collection
 of APIs which act as standard building blocks for dense matrix operations.
-BLAS routines are divided into 3 levels,
+BLAS routines are divided into three levels,
 level-1 for vector-vector operations,
 level-2 for matrix-vector operations,
 and level-3 for matrix-matrix operations.
 Processor vendors often provide BLAS implementations
 that are highly optimized for their processors,
-such as Intel MKL, AMD ACML and NVIDIA cuBLAS.
+such as Intel MKL, AMD ACML, and NVIDIA cuBLAS.
 The HPC community has also contributed several high-quality
 BLAS implementations, e.g., ATLAS~\cite{atlas},
 GotoBLAS~\cite{gotoblas}, OpenBLAS~\cite{openblas},
@@ -38,8 +39,8 @@ the underlying loop nest
 and determines a task schedule by choosing a specific traversal order
 in the loop nest's iteration space.
 In a multi-threaded context, different tasks (loop tiles) are assigned to
-different threads to parallelize the whole operation.
-The main objective of GEMM optimization is to
+different threads to harness parallelism.
+The main objective of the GEMM optimization is to
 maximize the floating-point
 operation throughput, measured by FLoating-point Operations Per Second ($flops$).
 For the serial kernel routine, the optimization applies
@@ -60,39 +61,45 @@ To better exploit the capability of on-chip caches,
 matrices are blocked and then packed into continuous memory buffers
 that can fit into the caches under consideration
 before the kernel routine is called.
-Because GEMM is a computational intensive operation whose
-arithmetic complexity is $O(n^3)$ and memory complexity is $O(n^2)$,
-the overhead caused by data packing is negligible when
-the input matrices are large~\cite{gotogemm}.
+Because GEMM is a computational intensive operation 
+with an 
+arithmetic complexity of $O(n^3)$ and a memory complexity of $O(n^2)$,
+the overhead caused by data packing is negligible for
+large
+input matrices~\cite{gotogemm}.
 
 
 However, software prefetching and data packing cannot be effectively
-applied to architectures with non-LRU shared caches.
+applied to architectures with shared non-LRU caches.
 In traditional high-performance processors, e.g., the Intel Xeon series,
 both L1 and L2 caches are private to processor cores
-and LRU replacement policy is adopted.
+and an LRU replacement policy is adopted.
 Without considering the last level cache (LLC),
 the threads running on different cores prefetch their data into
 different caches, and private data of different threads
 cannot cause conflict cache misses.
-This is no longer the case if caches are shared by several processor cores.
+This is no longer the case if a cache is
+shared by several processor cores.
 In this case, a cache line prefetched by one thread
 may be evicted before its lifetime ends because another thread prefetches
 another cache line into the same cache set.
 A simple-minded solution would be to reduce 
 the size of a packed matrix
 so that the data used by several threads can simultaneously reside in a shared cache.
-Due to the nature of set-associative caches,
-this solution cannot completely eliminate inter-thread cache conflicts,
+Due to set-associativity,
+this solution is usually ineffective in reducing
+inter-thread cache conflicts,
 especially if the shared cache has a non-LRU replacement policy.
-Our evaluation shows that inter-thread cache conflicts
-in non-LRU shared caches
+Indeed,
+our evaluation shows that inter-thread cache conflicts
+in shared non-LRU caches
 can heavily hurt GEMM performance,
-even with packed matrices reduced to fit into the cache.
+even if packed matrices are reduced (in size)
+to fit into the shared cache.
 
 Following the trend in recent decades, modern architecture design
 is introducing more and more cores on a single processor chip.
-To reduce cost of on-chip cache memories and coherence networks,
+To reduce the cost of on-chip cache memories and coherence networks,
 shared caches may become common in future many-core processors.
 In addition, non-LRU replacement policies, for example, pseudo-random,
 may also be used to further reduce the cache design complexity.
@@ -105,39 +112,41 @@ ARM technology, e.g., the Phytium processor series~\cite{phytium},
 have already adopted this design. 
 As a result, developing a better solution to reduce
 the inter-thread cache conflicts 
-for non-LRU shared caches is important.
+for shared non-LRU caches is important.
 
 In this paper, we present a Shared Cache Partitioning (SCP) method
-to reduce inter-thread cache conflicts on architectures with non-LRU share caches.
-The key idea is to partition a
-share cache into physically disjoint sets
+to reduce inter-thread cache conflicts on architectures with shared non-LRU caches.
+The key insight is to partition a
+shared cache into physically disjoint sets
 and assign different sets to different threads. This can be achieved by
-exploiting the memory mapping mechanism of set-associative caches.
+exploiting the memory mapping mechanism in a 
+set-associative cache.
 
 To the best of our knowledge, SCP represents
 the first work addressing
 the inter-thread cache conflicts problem on
-architectures with non-LRU share caches.
+architectures with shared non-LRU caches.
 
 The main contributions of this paper are as follows:
 \begin{itemize}
 \item We present a quantitative analysis of the negative effect of inter-thread cache
-  conflicts on GEMM performance.
+  conflicts on the GEMM performance.
 \item We propose SCP, a method for solving the inter-thread cache conflicts
-  problem on architectures with non-LRU shared caches.
+  problem on architectures with shared non-LRU caches.
 \item We have implemented SCP in the OpenBLAS library and evaluated it on Phytium 2000+,
   an emerging high-performance processor based on ARM's AArch64 architecture.
   Phytium 2000+ has 64 cores, private LRU L1 caches
-  and pseudo-random shared L2 caches.
+  and shared L2 caches with a pseudo-random
+  replacement policy.
   Our evaluation shows that SCP can improve the GEMM performance consistently
-  under various parallelism configurations, by $2.75\%$--$6.91\%$.
+  under various parallelization configurations, by $2.75\%$--$6.91\%$.
 \end{itemize}
 
 
 The rest of the paper is organized as follows.
 Section~\ref{sec:background} gives some background on GEMM and discusses
 the cache conflicts incurred.
-Section~\ref{sec:scp} introduces the SCP method.
+Section~\ref{sec:scp} introduces our SCP method.
 Section~\ref{sec:evaluation} presents and
 analyzes our experimental results.
 Section~\ref{sec:related} reviews the related work.

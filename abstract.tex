@@ -4,7 +4,8 @@
   To achieve high performance, in-memory data must be
   prefetched into fast on-chip caches before they are used.
   Two techniques, software prefetching and data packing,
-  have been used to effectively exploit the capability of on-chip lastly-recent-used (LRU) caches,
+  have been used to effectively exploit the capability of
+  on-chip lastly-recent-used (LRU) caches,
   which are popular in traditional high-performance
   processors used in high-end servers and supercomputers.
   However, the market has recently witnessed a
@@ -15,15 +16,14 @@
   As several threads try to load data into a shared cache simultaneously,
   inter-thread cache conflicts will increase significantly.
   We present a Shared Cache Partitioning (SCP) method to
-  eliminate inter-thread cache conflicts in the
-  GEMM routines,
+  eliminate inter-thread cache conflicts in the GEMM routines,
   by partitioning a shared cache into physically disjoint
   sets and assigning different sets to different threads.
   We have implemented SCP in the OpenBLAS library and
   evaluated it on Phytium 2000+,
   a 64-core AArch64 processor with private LRU L1 caches
-  and shared pseudo-random L2 caches (per every four cores).
-  Our experimental results show that conflict misses in both L1 and L2
-  caches are effectively reduced, resulting in an improvement
-  of the GEMM performance by $2.75\%$--$6.91\%$.
+  and shared pseudo-random L2 caches (per four-core cluster).
+  Our evaluation shows that SCP has effectively reduced the
+  conflict misses in both L1 and L2 caches,
+  resulting in an improvement of the GEMM performance by $2.75\%$ -- $6.91\%$.
 \end{abstract}
