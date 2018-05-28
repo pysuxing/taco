@@ -1,7 +1,8 @@
 \section{Performance Evaluation}\label{sec:evaluation}
 
-We have implemented SCP in the OpenBLAS~\cite{openblas} library (version 0.3.0-dev) and evaluated
-it on a Phytium 2000+ processor.
+We have implemented SCP in the OpenBLAS~\cite{openblas} library
+%% (version 0.3.0-dev)
+and evaluated it on a Phytium 2000+ processor.
 The Phytium 2000+ processor is an emerging high-performance
 64-core processor based on ARM's AArch64 architecture.
 The 64 cores are organized into 16 clusters with each
@@ -10,9 +11,11 @@ The structure of a cluster is almost the same as
 the 4-core processor in Figure~\ref{fig:hierarchy}
 except that the L2 caches of all 16 clusters connect to the main memory
 with hardware coherence.
+\textcolor{red}{
 Table~\ref{tab:cluster} lists the
 architectural parameters for the cores and caches
-in this processor.
+in this processor
+and Table~\ref{tab:software} shows the software environment used in out evaluation.}
 We restrict our evaluation to DGEMM,
 as in prior work~\cite{blispar,augem,poetmicro}, for two reasons.
 First, the basic idea behind SCP applies to other
@@ -20,6 +23,22 @@ variants of GEMM such as SGEMM, CGEMM and ZGEMM.
 Second, the LINPACK benchmark, which is used to build the
 TOP500 list of world's most powerful supercomputers~\cite{top500},
 relies on the DGEMM variant.
+
+\begin{table}
+  \centering
+  \caption{Software environment used in evaluation}
+  \label{tab:software}
+  \begin{tabular}{lll}
+    \toprule
+    Environment & Software & Version \\
+    \midrule
+    Operating System & GNU/Linux & 4.4.0 AArch64 \\
+    Compiler & GNU/GCC & 6.3.0 \\
+    Thread Model & OpenMP & 4.0 \\
+    BLAS & OpenBLAS & 0.3.0-dev \\
+    \bottomrule
+  \end{tabular}
+\end{table}
 
 
 In our evaluation, we use the tiling factors
@@ -35,11 +54,11 @@ For the Phytium 2000+ processor, we have
 $NC \in [1, 16]$ and $NT_C \in [1, 4]$. 
 Generally, the DGEMM performance is measured in $flops$.
 As $NT$ varies in our evaluation,
-we also  use another metric derived from $flops$,
+we use another metric derived from $flops$,
 the average thread efficiency,
 to describe our performance results consistently.
 The average thread efficiency is a normalized value computed as
-$E_{avg} = flops / (NT \times cdot \widehat{flops})$,
+$E_{avg} = flops / (NT \times \widehat{flops})$,
 where $\widehat{flops}$ stands for the theoretical performance
 peak of a single core.
 %% \begin{equation*}
@@ -62,29 +81,6 @@ discuss the privatization of the shared matrix $B_2$
 
 \subsection{Penalty of Cache Sharing}\label{subsec:drawback}
 
-\begin{figure}
-  \centering
-  \subfigure[$NT=4$]{
-    \label{fig:drawback-4}
-    \includegraphics[width=.31\textwidth]{figures/sec1-4}
-  }
-  \subfigure[$NT=8$]{
-    \label{fig:drawback-8}
-    \includegraphics[width=.31\textwidth]{figures/sec1-8}
-  }
-  \\
-  \subfigure[$NT=16$]{
-    \label{fig:drawback-16}
-    \includegraphics[width=.31\textwidth]{figures/sec1-16}
-  }
-  \subfigure[$NT=32,64$]{
-    \label{fig:drawback-32}
-    \includegraphics[width=.31\textwidth]{figures/sec1-32}
-  }
-  \caption{Average thread efficiency with cache sharing}
-  \label{fig:drawback}
-\end{figure}
-
 In a cluster, the L2 cache is shared by its four cores.
 The impact of cache sharing can be demonstrated
 by comparing the DGEMM performance results achieved
@@ -99,6 +95,29 @@ As there is only one configuration for $NT=64$,
 ($NC=16$ and $NT_C=4$),
 no comparison is available. Thus,
 the results for $NT=64$ and $NT=32$ are combined in Figure~\ref{fig:drawback-32}.
+
+\begin{figure}
+  \centering
+  \subfigure[$NT=4$]{
+    \label{fig:drawback-4}
+    \includegraphics[width=.45\textwidth]{figures/sec1-4}
+  }
+  \subfigure[$NT=8$]{
+    \label{fig:drawback-8}
+    \includegraphics[width=.45\textwidth]{figures/sec1-8}
+  }
+  \\
+  \subfigure[$NT=16$]{
+    \label{fig:drawback-16}
+    \includegraphics[width=.45\textwidth]{figures/sec1-16}
+  }
+  \subfigure[$NT=32,64$]{
+    \label{fig:drawback-32}
+    \includegraphics[width=.45\textwidth]{figures/sec1-32}
+  }
+  \caption{Average thread efficiency with cache sharing}
+  \label{fig:drawback}
+\end{figure}
 
 \begin{table}
   \centering
@@ -145,24 +164,24 @@ impact on the DGEMM performance.
   \centering
   \subfigure[$NT=4$]{
     \label{fig:benefit-4}
-    \includegraphics[width=.31\textwidth]{figures/sec2-4}
+    \includegraphics[width=.45\textwidth]{figures/sec2-4}
   }
   \subfigure[$NT=8$]{
     \label{fig:benefit-8}
-    \includegraphics[width=.31\textwidth]{figures/sec2-8}
+    \includegraphics[width=.45\textwidth]{figures/sec2-8}
   }
   \subfigure[$NT=16$]{
     \label{fig:benefit-16}
-    \includegraphics[width=.31\textwidth]{figures/sec2-16}
+    \includegraphics[width=.45\textwidth]{figures/sec2-16}
   }
   \\
   \subfigure[$NT=32$]{
     \label{fig:benefit-32}
-    \includegraphics[width=.31\textwidth]{figures/sec2-32}
+    \includegraphics[width=.45\textwidth]{figures/sec2-32}
   }
   \subfigure[$NT=64$]{
     \label{fig:benefit-64}
-    \includegraphics[width=.31\textwidth]{figures/sec2-64}
+    \includegraphics[width=.45\textwidth]{figures/sec2-64}
   }
   \caption{Average thread efficiency under SCP}
   \label{fig:benefit}
@@ -235,24 +254,24 @@ is observed under the maximum parallelism with $NT=64$.
   \centering
   \subfigure[$NT=4$]{
     \label{fig:papi-4}
-    \includegraphics[width=.31\textwidth]{figures/papi-4}
+    \includegraphics[width=.45\textwidth]{figures/papi-4}
   }
   \subfigure[$NT=8$]{
     \label{fig:papi-8}
-    \includegraphics[width=.31\textwidth]{figures/papi-8}
+    \includegraphics[width=.45\textwidth]{figures/papi-8}
   }
   \subfigure[$NT=16$]{
     \label{fig:papi-16}
-    \includegraphics[width=.31\textwidth]{figures/papi-16}
+    \includegraphics[width=.45\textwidth]{figures/papi-16}
   }
   \\
   \subfigure[$NT=32$]{
     \label{fig:papi-32}
-    \includegraphics[width=.31\textwidth]{figures/papi-32}
+    \includegraphics[width=.45\textwidth]{figures/papi-32}
   }
   \subfigure[$NT=64$]{
     \label{fig:papi-64}
-    \includegraphics[width=.31\textwidth]{figures/papi-64}
+    \includegraphics[width=.45\textwidth]{figures/papi-64}
   }
   \caption{Cache miss rates with $NT_C=4$}
   \label{fig:papi}
@@ -366,15 +385,15 @@ In this section, we discuss and evaluate this privatization alternative.
   \centering
   \subfigure[Conventional]{
     \label{fig:packb.conventional}
-    \includegraphics[width=.50\textwidth]{figures/strategy-conventional}
+    \includegraphics[width=.65\textwidth]{figures/strategy-conventional}
   }
   \subfigure[Full privatization]{
     \label{fig:packb.full}
-    \includegraphics[width=.50\textwidth]{figures/strategy-full}
+    \includegraphics[width=.65\textwidth]{figures/strategy-full}
   }
   \subfigure[Partial privatization]{
     \label{fig:packb.partial}
-    \includegraphics[width=.50\textwidth]{figures/strategy-partial}
+    \includegraphics[width=.65\textwidth]{figures/strategy-partial}
   }
   \caption{Packing workload ($B_2$) of thread $T_1$ with $NT_C=4$ and $NC=4$}
   %% \caption{Packing strategies of shared matrix $B_2$ with $NT_C=4$ and $NC=4$}
@@ -387,9 +406,9 @@ Figure~\ref{fig:packb} shows three packing strategies for $B_2$
 in a parallelization configuration specified by
 $NT_C=4$ and $NC=4$.
 In each case, the entire packing workload of $B_2$ is divided into 16 tasks.
-So only the packing workload in one thread, $T_1$, 
+So only the packing workload of one thread, $T_1$, 
 which is highlighted by the z-curves (as shown), is illustrated.
-%% and the task assignment is annoted in Figure~\ref{fig:packb}.
+%% and the task assignment is annotated in Figure~\ref{fig:packb}.
 In the conventional packing approach
 (Figure~\ref{fig:packb.conventional}),
 each thread takes a single task.
@@ -419,7 +438,7 @@ configurations are similar.
 For comparison purposes,
 SCP with and without privatization,
 denoted as SCP-P and SCP, respectively,
-are given in Figure~\ref{fig:privb}.
+are both given in Figure~\ref{fig:privb}.
 Figure~\ref{fig:privb.papi} shows the L1 and L2
 cache miss rates, which are 
 slightly lower with privatization (SCP-P) than without
@@ -433,6 +452,10 @@ three types of major overheads in percentage terms
 over the total execution time, including
 (1) packing of $A_2$, (2) packing of $B_2$,
 and (3) synchronization.
+\textcolor{red}{
+The solid and dashed horizontal lines represent
+the average value of total overhead across matrix sizes
+under SCP and SCP-P, respectively.}
 While behaving similarly as SCP
 in (1) and (3), SCP-P is worse than SCP in (2).
 To understand this further,
@@ -448,15 +471,15 @@ from $2.35\%$ (under SCP) to $4.72\%$ (under SCP-P).
   \centering
   \subfigure[Cache miss rates]{
     \label{fig:privb.papi}
-    \includegraphics[width=.31\textwidth]{figures/privb-papi}
+    \includegraphics[width=.45\textwidth]{figures/privb-papi}
   }
   \subfigure[Average thread efficiency]{
     \label{fig:privb.ate}
-    \includegraphics[width=.31\textwidth]{figures/privb-ate}
+    \includegraphics[width=.45\textwidth]{figures/privb-ate}
   }
   \subfigure[Execution time breakdown]{
     \label{fig:privb.breakdown}
-    \includegraphics[width=.65\textwidth]{figures/privb-breakdown}
+    \includegraphics[width=.90\textwidth]{figures/privb-breakdown}
   }
   \caption{Performance of partial privatization with $NT_C=4$ and $NC=4$}
   \label{fig:privb}
@@ -481,7 +504,7 @@ from $2.35\%$ (under SCP) to $4.72\%$ (under SCP-P).
 Our results demonstrate that privatizing the shared matrix $B_2$ can further
 reduce inter-thread cache conflicts.
 However, the improvement in cache performance is small.
-As $B_2$ only occupies a small portion of the shared L2 cache,
+As $B_2$ only occupies a small portion of the shared L2 cache during GEMM execution,
 this marginal improvement is not sufficient to
 balance the extra packing overhead introduced
 by privatization.

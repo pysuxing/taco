@@ -73,3 +73,24 @@ can be simultaneously parallelized.
 This nested parallelization is well suited to complex architecture features
 like multi-sockets and hyperthreading. 
 
+\textcolor{red}{
+Because GEMM is highly optimized and parallelized,
+other higher level dense linear algebra operations,
+such as Cholesky, LU and QR factorization,
+can just simply call GEMM to benefit from multi-core and many-core processors.
+In other words, this programming pattern in dense linear algebra software
+harness a fork-and-join style parallelism.
+To reduce synchronization overhead,
+The PLASMA project~\cite{plasma2009,plasma2010,plasma2017}
+utilizes a task-driven parallelization paradigm
+in which dense linear algorithms are formulated
+into directed-acyclic-graphs (DAG) of fine-grained tasks.
+The tasks are dynamically scheduled based on data dependencies
+between them (represented by edges in the DAG).
+The principle of SCP also applies to this DAG based parallelization.
+Input matrices of different tasks can be packed into
+different sets of a shared cache and
+tasks can be scheduled based on the cache sets their input matrices reside in,
+i.e., tasks whose input matrices live in the same cache sets
+are scheduled to the same core in priority.
+}

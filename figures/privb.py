@@ -73,20 +73,27 @@ def breakdown():
   # print(ypri)
   fig, ax = plt.subplots()
   ax.set_position([0.1, 0.2, 0.8, 0.75])
+  xmin, xmax = lb-step, ub+step
+  scp_mean = 100-np.mean(scp, axis=0)[-1]
+  pri_mean = 100-np.mean(pri, axis=0)[-1]
 
+  l0 = ax.hlines(scp_mean, xmin, xmax, linestyles='solid', linewidth=2,
+                 color='blue', label='$SCP$ $overhead$')
   scp_o = ax.bar(x0, scp[:, 0], width=width, bottom=0,
                  color='yellow', label='$SCP$ $Sync$')
   scp_a = ax.bar(x0, scp[:, 1], width=width, bottom=yscp[:, 0],
                  color='skyblue', label='$SCP$ $PackA$')
   scp_b = ax.bar(x0, scp[:, 2], width=width, bottom=yscp[:, 1],
                  color='tan', label='$SCP$ $PackB$')
+  l1 = ax.hlines(pri_mean, xmin, xmax, linestyles='dashed', linewidth=2,
+                 color='red', label='$SCP$-$P$ $overhead$')
   pri_o = ax.bar(x1, pri[:, 0], width=width, bottom=0,
                  color='yellow', hatch='//', label='$SCP$-$P$ $Sync$')
   pri_a = ax.bar(x1, pri[:, 1], width=width, bottom=ypri[:, 0],
                  color='skyblue', hatch='//', label='$SCP$-$P$ $PackA$')
   pri_b = ax.bar(x1, pri[:, 2], width=width, bottom=ypri[:, 1],
                  color='tan', hatch='//', label='$SCP$-$P$ $PackB$')
-  ax.set_xlim(lb-step, ub+step)
+  ax.set_xlim(xmin, xmax)
   ax.set_xticks(xticks)
   ax.set_xticklabels(xticks, rotation=45, fontsize='x-large')
   ax.set_xlabel('Matrix Size ($M=N=K$)', fontsize='xx-large')
@@ -96,11 +103,17 @@ def breakdown():
   ax.set_yticks(yticks)
   ax.set_yticklabels(yticklabels, fontsize='x-large')
   ax.set_ylabel('Occupancy Ratio ($\%$)', fontsize='xx-large')
-  ax.legend(fontsize='xx-large', loc='upper right', ncol=2)
+  # ax.legend(fontsize='xx-large', loc='upper right', ncol=2)
+  ax.legend((l0, scp_o, scp_a, scp_b, l1, pri_o, pri_a, pri_b),
+            ('$SCP$ $overhead$', '$SCP$ $Sync$', '$SCP$ $PackA$', '$SCP$ $PackB$',
+             '$SCP$-$P$ $overhead$', '$SCP$-$P$ $Sync$', '$SCP$-$P$ $PackA$', '$SCP$-$P$ $PackB$'),
+            fontsize='xx-large', loc='upper right', ncol=2)
+  # ax.grid(True)
   fig.set_figwidth(2*fig.get_figwidth())
   fig.savefig('privb-breakdown.pdf')
   print(np.mean(scp, axis=0))
   print(np.mean(pri, axis=0))
+  print(scp_mean, pri_mean)
 
 def ate():
   scp = np.load('ate-scp.npy')

@@ -123,16 +123,16 @@ the memory layout for the packed matrices $A_2$ and $B_2$ in GEMM.
 The memory layout of the other packed matrices at
 lower layers are determined once the memory layout of
 $A_2$ and $B_2$ is determined.
-We assume that the share matrix $B_2$ is packed
+We assume that the shared matrix $B_2$ is packed
 in the conventional way-partitioning style.
 If desired, $B_2$ can be privatized and handled in the same way as $A_2$.
 
 We make a few standard assumptions, which usually
 hold for the architecture considered:
 \begin{itemize}
-\item The architecture has 2 or 3 levels of caches; %% i.e. $NL=2$ or $NL=3$
-\item All caches are inclusive set-associative caches; %% i.e. $n_l \ge 2$ for $l \in [1, NL]$
-\item The caches at the same level are homogeneous; and %% i.e. $L_l^i = L_l^j$ for $i \ne j$, $l \in [1, NL]$.
+\item The architecture has 2 or 3 levels of caches. %% i.e. $NL=2$ or $NL=3$
+\item All caches are inclusive set-associative caches. %% i.e. $n_l \ge 2$ for $l \in [1, NL]$
+\item The caches at the same level are homogeneous. %% i.e. $L_l^i = L_l^j$ for $i \ne j$, $l \in [1, NL]$.
 \item A cache's way-capacity is a multiple of the sum of way-capacities of its children,
 i.e., $(\frac{nt_l}{nt_{l-1}} \cdot wc_{l-1}) \mid wc_l$.
 \end{itemize}
@@ -162,7 +162,7 @@ the memory descriptor contains a sequence of equally strided segments.
   \begin{algorithmic}[1]
     \REQUIRE $L_l = (c_l,l_l,n_l,nt_l)$ for $l \in [0, NL]$, $NT$,
     $M_r$, $N_r$, $K_c$, $M_c$, $N_c$
-    \ENSURE $\mathcal{D}_p$ and $\mathcal{D}_s$
+    \ENSURE $\mathcal{D}_p$ and $\mathcal{D}_s$ 
     \STATE $size_p \gets es M_c K_c$ \label{line:size.p}
     \STATE $size_s \gets es N_c K_c / NT$ \label{line:size.s}
     \STATE $align \gets l_1$ \label{line:align.init}
@@ -219,7 +219,7 @@ equally partitioned among the $nt_l$ threads
 in set-partitioning.
 Finally, memory is allocated (lines~\ref{line:alloc.begin} -- \ref{line:alloc.end})
 and buffers $\mathcal{D}_p$ and $\mathcal{D}_s$
-are created (line~\ref{line:d.begin} -- \ref{line:d.end}).
+are created (lines~\ref{line:d.begin} -- \ref{line:d.end}).
 
 \begin{algorithm}
   %% a trick to temporally define customized command
