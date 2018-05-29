@@ -208,7 +208,7 @@ While all the color shaded submatrices are accessed by $T_1$,
 only the submatrices highlighted by the z-curves
 (a subset of color shaded ones) are packed by $T_1$.
 In other words, each thread packs its own $A_2$ instance but all the threads pack collaboratively the unique $B_2$ instance.
-%% We will use the OpenBLAS GEMM implementation in Figure.~\ref{fig:gemm}
+%% We will use the OpenBLAS GEMM implementation in Figure~\ref{fig:gemm}
 %% in discussion and evaluation throughout the paper.
 
 \begin{figure}[t]
@@ -227,7 +227,7 @@ aim to avoid capacity misses,
 conflict misses cannot be eliminated completely.
 %% We use the term ``cache conflict'' to represent conflict miss events.
 
-In Figure.~\ref{fig:gemm}, the packed matrix $A_2$
+In Figure~\ref{fig:gemm}, the packed matrix $A_2$
 will be read $N_c/N_r$ times within a single GEBP execution,
 and is expected to reside in the 
 L2 cache during all the $N_c/N_r$ iterations at layer 4.
@@ -254,7 +254,7 @@ In contrary to intra-thread cache conflicts,
 there exists another kind of cache conflicts, called
 \emph{inter-thread cache conflicts}, on architectures with shared caches.
 Suppose two working threads, $T_0$ and $T_1$, are running independently
-on the four-core processor in Figure.~\ref{fig:hierarchy}
+on the four-core processor in Figure~\ref{fig:hierarchy}
 to accomplish a GEMM operation.
 At time $t_s$, $T_0$ prefetches some data at address $addr_0$
 to the cache set $\varphi_2(addr_0)$ in the shared L2 cache.

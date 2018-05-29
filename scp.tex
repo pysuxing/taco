@@ -33,7 +33,7 @@ As there is no L3 cache, (\ref{eq:constraints.l3}) can be ignored
 and $N_c$ can be given a large value.
 Here, we choose $N_c = 1024NT = 4096$.
 Given these tiling factors, the sizes of packed matrices
-can be calculated. Table.~\ref{tab:msizes} lists
+can be calculated. Table~\ref{tab:msizes} lists
 the sizes of various packed matrices used.
 
 \begin{table}
@@ -68,7 +68,7 @@ the sizes of various packed matrices used.
 \end{figure}
 
 Each $A_2$ is packed into a single continuous buffer.
-Figure.~\ref{fig:partition.conventional} shows how the
+Figure~\ref{fig:partition.conventional} shows how the
 $A_2$ instances of four threads are distributed in the shared 16-way L2 cache.
 Every cache set $s \in [0,2048)$ contains
 data from all the four $A_2$ instances,
