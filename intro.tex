@@ -129,17 +129,23 @@ architectures with shared non-LRU caches.
 
 The main contributions of this paper are as follows:
 \begin{itemize}
+\item We propose SCP, a method for reducing 
+	the inter-thread cache conflicts
+  for GEMM on architectures with shared non-LRU caches.
 \item We present a quantitative analysis of the negative effect of inter-thread cache
-  conflicts on the GEMM performance.
-\item We propose SCP, a method for solving the inter-thread cache conflicts
-  problem on architectures with shared non-LRU caches.
+  conflicts on the GEMM performance
+  on architectures with shared non-LRU caches.
 \item We have implemented SCP in the OpenBLAS library and evaluated it on Phytium 2000+,
   an emerging high-performance processor based on ARM's AArch64 architecture.
   Phytium 2000+ has 64 cores, private LRU L1 caches
   and shared L2 caches with a pseudo-random
-  replacement policy.
-  Our evaluation shows that SCP can improve the GEMM performance consistently
-  under various parallelization configurations, by $2.75\%$--$6.91\%$.
+  replacement policy. By reducing the inter-thread
+  cache conflicts effectively,
+  SCP can improve the 
+  performance of a highly-optimized
+  GEMM implementation  consistently
+  under various parallelization configurations, by 
+  $2.75\%$ -- $6.91\%$.
 \end{itemize}
 
 

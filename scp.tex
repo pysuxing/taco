@@ -57,13 +57,13 @@ the sizes of various packed matrices used.
   \centering
   \subfigure[Way-partitioning]{
     \label{fig:partition.conventional}
-    \includegraphics[width=.4\textwidth]{figures/wpart}
+    \includegraphics[width=.48\textwidth]{figures/wpart}
   }
   \subfigure[Set-partitioning]{
     \label{fig:partition.segmented}
-    \includegraphics[width=.4\textwidth]{figures/spart}
+    \includegraphics[width=.48\textwidth]{figures/spart}
   }
-  \caption{Partitioning styles for the shared L2 cache (n=16, ns=2048)}
+  \caption{Partitioning styles for a shared L2 cache (n=16 and ns=2048)}
   \label{fig:partition}
 \end{figure}
 
@@ -155,7 +155,7 @@ With way-partitioning, the memory descriptor contains only one segment.
 With set-partitioning,
 the memory descriptor contains a sequence of equally strided segments.
 
-\begin{algorithm}
+\begin{algorithm}[t]
   \caption{SCP (Phase 1): allocating memory buffers
   for $A_2$ and $B_2$}
   \label{alg:scp.phase1}

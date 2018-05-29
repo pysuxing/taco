@@ -6,16 +6,15 @@ and evaluated it on a Phytium 2000+ processor.
 The Phytium 2000+ processor is an emerging high-performance
 64-core processor based on ARM's AArch64 architecture.
 The 64 cores are organized into 16 clusters with each
-cluster containing 4 cores.
+cluster containing four cores.
 The structure of a cluster is almost the same as
-the 4-core processor in Figure~\ref{fig:hierarchy}
+the four-core processor in Figure~\ref{fig:hierarchy}
 except that the L2 caches of all 16 clusters connect to the main memory
 with hardware coherence.
-\textcolor{red}{
 Table~\ref{tab:cluster} lists the
 architectural parameters for the cores and caches
 in this processor
-and Table~\ref{tab:software} shows the software environment used in out evaluation.}
+and Table~\ref{tab:software} shows the software environment used.
 We restrict our evaluation to DGEMM,
 as in prior work~\cite{blispar,augem,poetmicro}, for two reasons.
 First, the basic idea behind SCP applies to other
@@ -452,10 +451,10 @@ three types of major overheads in percentage terms
 over the total execution time, including
 (1) packing of $A_2$, (2) packing of $B_2$,
 and (3) synchronization.
-\textcolor{red}{
 The solid and dashed horizontal lines represent
-the average value of total overhead across matrix sizes
-under SCP and SCP-P, respectively.}
+the average values of the total overheads
+across the matrix sizes
+under SCP and SCP-P, respectively.
 While behaving similarly as SCP
 in (1) and (3), SCP-P is worse than SCP in (2).
 To understand this further,

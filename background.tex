@@ -28,13 +28,13 @@ $\mathcal{S}$.
 The data at $addr \in \mathcal{A}$ must be fetched
 into the cache set $\varphi(addr) \in \mathcal{S}$ if requested.
 A classic implementation of the indexing function is shown below,
-%% $\varphi(addr) = (addr \gg log_2(l)) ~\&~ (ns-1)$,
+%% $\varphi(addr) = (addr \gg \log_2(l)) ~\&~ (ns-1)$,
 with $\gg$ and $\&$ representing logical-shift-right and bitwise-and operations, respectively:
 \begin{equation*}
-  \varphi(addr) = (addr \gg log_2(l)) ~\&~ (ns-1)
+  \varphi(addr) = (addr \gg \log_2(l)) ~\&~ (ns-1)
   \label{eq:phi}
 \end{equation*}
-which represents an extraction of the $log_2(ns)$ bits starting from the $log_2(l)$-th
+which represents an extraction of the $\log_2(ns)$ bits starting from the $\log_2(l)$-th
 position in $addr$'s binary form.
 It is easy to prove that any continuous memory block
 that is no larger than $c/n$
@@ -53,7 +53,7 @@ its layer and its unique index at the layer $(layer, index)$.
 The number of nodes at layer $l$ is $NT / nt_l$.
 
 Throughout this paper, our example platform will be
-a 4-core processor with
+a four-core processor with
 $NL=2$ levels of caches.
 Figure~\ref{fig:hierarchy} shows its memory hierarchy 
 and Table~\ref{tab:cluster} lists its
@@ -66,15 +66,15 @@ level-0 cache $L0 = (512B, 16B, 32, 1)$ with a programmable replacement policy.
 
 \begin{figure}
   \centering
-  \includegraphics[width=.55\textwidth]{figures/cluster-new}
-  \caption{Memory hierarchy of the 4-core processor
+  \includegraphics[width=.65\textwidth]{figures/cluster-new}
+  \caption{Memory hierarchy of the four-core processor
     (nodes labeled with $(layer,index)$)}
   \label{fig:hierarchy}
 \end{figure}
 
 \begin{table}
   \centering
-  \caption{Architectural parameters of the 4-core processor}
+  \caption{Architectural parameters of the four-core processor}
   %% (see Section~\ref{subsec:hierarchy} for meanings of symbols in the header row)
   \label{tab:cluster}
   \begin{tabular}{lccccccl}
@@ -136,7 +136,7 @@ constraints:
 \end{eqnarray}
 where $es$ denotes the size of a matrix element,
 e.g., 8B for a double-precision floating-point number
-and $c_l$ denotes the capacity of the register file or cache at level $l$.
+and $c_l$ ($0\leqslant l \leqslant 3$) denotes the capacity of the register file or cache at level $l$.
 By (\ref{eq:constraints.reg}), $M_r$ and $N_r$ are so
 constrained that $M_r$ elements from $A$,
 $N_r$ elements from $B$ and $M_r \times N_r$ elements from $C$ can
@@ -201,7 +201,7 @@ but share the same $B_1$.
 
 As a result, there are multiple $A_2$ instances (one per thread)
 and a single $B_2$ instance (shared by all threads).
-To understand how the $ii$ loop at layer 3 is parallelized on the 4-core processor, 
+To understand how the $ii$ loop at layer 3 is parallelized on the four-core processor, 
 Figure~\ref{fig:workload} shows the data accessing patterns
 for a single thread $T_1$.
 While all the color shaded submatrices are accessed by $T_1$,
@@ -213,8 +213,8 @@ In other words, each thread packs its own $A_2$ instance but all the threads pac
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=.4\textwidth]{figures/workload}
-  \caption{GEMM parallelization with 4 threads and data accessing patterns of thread $T_1$}
+  \includegraphics[width=.5\textwidth]{figures/workload}
+  \caption{GEMM parallelization with four threads and data accessing patterns of thread $T_1$}
   \label{fig:workload}
 \end{figure}
 
@@ -248,13 +248,13 @@ during every iteration at layer 6 before it actually reads them just in case tha
 the data may have been evicted accidentally from the L1 cache.
 As GEBP accesses the matrix data much more frequently than other
 data structures, this repeated prefetching strategy
-can reduce the penalty caused by intra-thread cacheconflicts.
+can reduce the penalty caused by intra-thread cache conflicts.
 
 In contrary to intra-thread cache conflicts,
 there exists another kind of cache conflicts, called
 \emph{inter-thread cache conflicts}, on architectures with shared caches.
 Suppose two working threads, $T_0$ and $T_1$, are running independently
-on the 4-core processor in Figure.~\ref{fig:hierarchy}
+on the four-core processor in Figure.~\ref{fig:hierarchy}
 to accomplish a GEMM operation.
 At time $t_s$, $T_0$ prefetches some data at address $addr_0$
 to the cache set $\varphi_2(addr_0)$ in the shared L2 cache.
