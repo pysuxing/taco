@@ -17,20 +17,28 @@ colors = ['lightskyblue', 'tan', 'lightgrey', 'pink', 'white']
 hatches = ['/', '..', '\\', 'x', None]
 
 usehatch = True
+usecolor = True
 
 def wpart():
   fig, ax = plt.subplots()
   wpt = 3
+
   for t in range(ntc):
     ways = np.arange(wpt*t, wpt*(t+1))
-    if usehatch:
+    if usehatch and usecolor:
+      ax.barh(ways, wc*np.ones(len(ways)), height=height, left=0, linewidth=.3,
+              color=colors[t], hatch=hatches[t], label='$T'+str(t)+'$')
+    elif usehatch:
       ax.barh(ways, wc*np.ones(len(ways)), height=height, left=0, linewidth=.3,
               color='None', hatch=hatches[t], label='$T'+str(t)+'$')
     else:
-      ax.barh(ways, wc*np.ones(len(ways)), height=height, left=0, linewidth=0,
+      ax.barh(ways, wc*np.ones(len(ways)), height=height, left=0, linewidth=.3,
               color=colors[t], label='$T'+str(t)+'$')
   t = ntc
   ways = np.arange(wpt*ntc, nways)
+  if usehatch and usecolor:
+    ax.barh(ways, wc*np.ones(len(ways)), height=height, left=0, linewidth=.3,
+            color=colors[ntc], hatch=hatches[ntc])
   if usehatch:
     ax.barh(ways, wc*np.ones(len(ways)), height=height, left=0, linewidth=.3,
             color='None', hatch=hatches[ntc])
@@ -57,7 +65,10 @@ def spart():
   fig, ax = plt.subplots()
   ways = np.arange(0, 12)
   for t in range(ntc):
-    if usehatch:
+    if usehatch and usecolor:
+      ax.barh(ways, seg*np.ones(len(ways)), height=height, left=t*seg, linewidth=.3,
+              color=colors[t], hatch=hatches[t], label='$T'+str(t)+'$')
+    elif usehatch:
       ax.barh(ways, seg*np.ones(len(ways)), height=height, left=t*seg, linewidth=.3,
               hatch=hatches[t], label='$T'+str(t)+'$', color='None')
     else:
@@ -65,6 +76,9 @@ def spart():
               color=colors[t], label='$T'+str(t)+'$')
   t = ntc
   ways = np.arange(12, nways)
+  if usehatch and usecolor:
+    ax.barh(ways, wc*np.ones(len(ways)), height=height, left=0, linewidth=.3,
+            color=colors[ntc], hatch=hatches[ntc])
   if usehatch:
     ax.barh(ways, wc*np.ones(len(ways)), height=height, left=0, linewidth=.3,
             hatch=hatches[ntc], color='None')
