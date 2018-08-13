@@ -1,0 +1,188 @@
+\documentclass[]{article}
+
+\usepackage{booktabs} % For formal tables
+\begin{document}
+
+\title{Response}
+\date{}
+\author{}
+
+\maketitle
+
+%% We thank all the reviewers for their advices.
+
+\section{Response to Reviewer 1}
+
+\begin{verbatim}
+Although the explanation of the problem and the solution is very
+clear in general, I think that it would be useful to include an
+explanation of how the mapping from virtual to physical addresses
+could create additional conflicts in the shared cache, and an analysis
+of whether this could happen in the target system or not.
+\end{verbatim}
+
+CPU caches can be either virtually indexed or physically indexed.
+Nowadays, most processors use physically indexed caches,
+that is, the physical address determines where the data should
+be placed in the cache.
+For physically indexed caches, SCP allocates physically continuous
+memory buffers (using the \texttt{HUGETLBFS} filesystem provided
+by the Linux kernel)
+and partitions the buffer among threads sharing the same cache. 
+For virtually indexed caches, virtually continuous
+memory buffers (allocated with malloc)
+are used instead of physically continuous ones.
+Under both situations, in-cache matrix data of different threads
+are guaranteed to be isolated from each other
+and memory mapping from virtual to physical addresses
+would not introduce additional conflicts.
+
+Explanation on this problem has been added to the first paragraph
+of section 4 (at the end of page 10).
+
+\section{Response to Reviewer 2}
+
+\begin{verbatim}
+Why are the selected matrix sizes (3072 to 4096-6144) chosen?
+\end{verbatim}
+
+These sizes are large enough to make GEMM run stably at peak performance
+given the total number of threads participating in the computation,
+that is, 3072--4096 for 4 threads and 4096--6144 for 8, 16, 32 and 64 threads.
+
+\begin{verbatim}
+Which is the behavior of the approach for smaller matrices?
+\end{verbatim}
+
+The performance of GEMM on small matrices may show sub-optimal
+and unstable performance.
+It is common practice for research on GEMM optimization to omit small
+matrices as GEMM is meant to run on large ones.
+There is another variant of BLAS specially designed for
+large amounts of small matrices,
+Batched-BLAS, which is out of the scope of our paper.
+
+\begin{verbatim}
+Why is there a systematic drop for the largest tested matrices on
+Figs. 5 and 6?
+\end{verbatim}
+
+There are two kinds of performance drop on Fig.~5 and Fig.~6.
+
+(1) Performance drops as matrix size increases with $NT \ge 16$.
+There is a synchronization point at the end of each iteration
+of the loop at layer 2 (Fig.~2).
+The synchronization is an all-to-all style
+communication, whose overhead is proportional to $NT^2$.
+As matrix size grows, GEMM suffers more synchronization because
+the loop at layer 2 runs more iterations.
+When $NT$ is 4 or 8, overhead of this synchronization is small,
+but it increases quickly as $NT$ increases.
+
+(2) Performance drops at matrix sizes which are multiple of 1024,
+e.g., 3072, 4096, 5120, 6144. 
+After profiling, we find that at these sizes,
+GEMM suffers more memory contention.
+As an example, the table below shows the profiling results
+under matrix sizes 3968 and 4096
+with parallelism configuration $NT_C=4$ and $NC=4$.
+$BW_{A}$ and $BW_{B}$ are measured bandwidth of packing A and B, respectively.
+$E_{avg}$ is the floating-point efficiency.
+From the table we can see that there is a big performance gap
+in $BW_{A}$ and $BW_{B}$.
+$E_{avg}$ is also a little lower at 4096 than at 3840,
+which may also be caused by the memory contention.
+In this example, $NT=NT_C \times NC=16$.
+When $M=N=K=4096$, each thread packs a $256 \times 256$ submatrix
+from $A$ and a $256 \times 256$ submatrix from $B$,
+both of size $V=512KB$.
+When $M=N=K=3840$, the submatrix to be packed are of size $V=480KB$.
+If the 16 threads starts packing roughly at the same time,
+they will access memory addresses
+$$addr+0V, addr+1V, \cdots, addr+15V$$
+Due to the organization of DDR memory hardware,
+$V=512K$ is more likely to cause memory contention than $V=480KB$
+because the memory banks are accessed in an imbalanced manner.
+
+\begin{table}[h]
+  \centering
+  \caption{Profiling results with $NT_C=4$ and $NC=4$}
+  \vspace{1em}
+  \begin{tabular}{cccc}
+    \toprule
+         & $BW_A$   & $BW_B$   & $E_{avg}$\\
+    \midrule
+    3840 & 0.81GB/s & 0.44GB/s & 87.2\%   \\
+    4096 & 1.44GB/s & 0.89GB/s & 86.1\%   \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{verbatim}
+Is there any evidence that this methodology transparently applies to 
+other BLAS-3 routines in OpenBLAS (it should be trivial to test) and
+for all matrix layouts (transposed/non transposed)?
+\end{verbatim}
+
+As other level-3 routines, for instance, TRSM, TRMM, SYMM and HEMM,
+call GEMM internally, they should also benefit from our proposal.
+So the SCP methodology can applies transparently to other BLAS-3 routines.
+
+Internally, different matrix layouts (row-major/column-major)
+are canonicalized to an implementation defined form
+by optionally swapping the $A$ and $B$ operands in $C=\alpha A B+\beta C$.
+For example, row-major $C=\alpha A B+\beta C$ can be transformed to
+column-major $C^T=\alpha B^T A^T + \beta C^T$.
+Then by data packing, matrix orientation information (transposed/non-transposed)
+is eliminated out and matrix data is packed into the special
+in-memory representation used by the kernel routine, as demonstrated in Fig. 2.
+SCP works after these transformations and does not rely on
+specific matrix layout or orientations.
+So the SCP methodology applies transparently to
+all matrix layouts and orientations.
+
+\section{Response to Reviewer 3}
+
+\begin{verbatim}
+There is a typo on Page 7, line 43, turning -> tuning.
+\end{verbatim}
+
+Already fixed in the paper.
+
+\begin{verbatim}
+As the authors mentioned the related work on the tuning implementation
+of GEMM only, they should also review the work regarding cache 
+partitioning because this paper discussion is mainly on cache
+partitioning. Some important papers are: ...
+\end{verbatim}
+
+The recommended citations are added to the ``related work`` section.
+
+\begin{verbatim}
+The proposed method works well, but it is so specific to DGEMM and
+Phytium 2000+ processor. To confirm that their approach is much more
+widely applicable even in the context of DGEMM, the discussion when
+using the different types of processors with a cache hierarchy for
+multi-core environments such as Xeon processors and KNL is strongly
+required.
+\end{verbatim}
+
+While the Xeon and Xeon Phi processors series
+have complex memory hierarchies,
+all their caches use an LRU replacement policy.
+So they are not target processors of our SCP method,
+which must have shared, non-LRU caches.
+%% Xeon processors have private, LRU L1 and L2 caches,
+%% and a shared LRU last-level-cache (L3).
+%% Xeon Phi (KNC, KNL) processors have LRU L1 and L2 caches.
+As a result, evaluation on Xeon and Xeon Phi processors would not
+improve the confirmability.
+
+The SCP method is specific to GEMM, but its benefits can transparently
+propagates to other BLAS-3 operations.
+SCP is not specific to the Phytium 2000+ processor and
+should work on any processors with shared non-LRU caches.
+Unfortunately, we have not get another processor with shared
+non-LRU caches like Phytium 2000+. 
+
+\end{document}
