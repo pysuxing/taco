@@ -98,13 +98,19 @@ the tasks whose input matrices reside
 in the same cache set
 are scheduled to the same core.
 
-\textcolor{red}{
+\textcolor{blue}{
 SCP is a cache partitioning technique.
-While SCP is specific to non-LRU caches and the GEMM program,
+While SCP is specific to GEMM running on architectures
+with non-LRU caches,
 there are general cache partitioning techniques \cite{cp0, cp1, cp2}
-aiming at estimating the interference between multiple applications
-sharing the same cache and improving overall system performance.
-In these research, either new hardware circuit is added to the processor
-or sophisticated cache replacement policies are required.
-SCP is a pure software method working on commercial processors.
+that focus on estimating the interference across 
+the multiple applications
+sharing the same cache and improving the
+overall system performance.
+In these research efforts, either hardware modifications are required
+or some sophisticated cache replacement policies are 
+needed.
+In contrast,
+SCP is a pure software approach that works for 
+commercial processors.
 }

@@ -15,14 +15,15 @@ Table~\ref{tab:cluster} lists the
 architectural parameters for the cores and caches
 in this processor
 and Table~\ref{tab:software} shows the software environment used.
-\textcolor{red}{
-All caches of the Phytium 2000+ processor are physically indexed,
-i.e., the physical address determines where the data should
-be placed in the cache. In our implementation, physically continuous
-memory buffers (allocated with the \texttt{HUGETLBFS} filesystem
-provided by the Linux kernel) are used,
-so in-cache matrix data of different threads
-are guaranteed to be isolated from each other.
+\textcolor{blue}{
+The L2 caches in the Phytium 2000+ processor are physically indexed.
+In our implementation, physically continuous
+memory buffers (allocated by the \texttt{HUGETLBFS} filesystem
+provided by the Linux kernel) are used for storing
+matrices in packed form. Therefore,
+for a given shared L2 cache,
+the matrix data accessed by different threads 
+are guaranteed to be free of conflict cache misses.
 }
 We restrict our evaluation to DGEMM,
 as in prior work~\cite{blispar,augem,poetmicro}, for two reasons.
@@ -72,6 +73,14 @@ peak of a single core.
 %% \begin{equation*}
 %%   E = flops / (NT \cdot \widehat{flops})
 %% \end{equation*}
+
+\textcolor{blue}{
+The mairix sizes selected range from 3072 to 
+4096 when $NT \in \{4, 8\}$ and to 
+6144 when $NT \in \{16, 32, 64\}$. 
+These sizes are large enough to make GEMM run stably at peak performance
+the given the total number of threads participating in the computation.
+}
 
 We show how cache sharing can hurt GEMM performance
 (Section~\ref{subsec:drawback}),
