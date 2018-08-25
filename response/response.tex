@@ -106,8 +106,8 @@ because the memory banks are accessed in a non-balanced manner.
     \toprule
          & $BW_A$   & $BW_B$   & $E_{avg}$\\
     \midrule
-    3840 & 0.81GB/s & 0.44GB/s & 87.2\%   \\
-    4096 & 1.44GB/s & 0.89GB/s & 86.1\%   \\
+    3840 & 1.44GB/s & 0.89GB/s & 86.1\%   \\
+    4096 & 0.81GB/s & 0.44GB/s & 87.2\%   \\
     \bottomrule
   \end{tabular}
 \end{table}
@@ -133,7 +133,6 @@ matrix orientation information (transposed vs. non-transposed)
 is eliminated and the matrix data are
 packed into the special
 in-memory representation used by the kernel routine, as demonstrated in Fig. 2.
-
 
 SCP, which works after these transformations, 
 does not rely on
