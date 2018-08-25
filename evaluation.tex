@@ -259,7 +259,45 @@ is observed under the maximum parallelism with $NT=64$.
 %% of cache sharing.
 %% But it do relieve the situation to a certain degree.
 
+{\color{red}{
+In Figure~\ref{fig:drawback} and \ref{fig:benefit},
+The performance drops slightly as the matrix size increases 
+under $NT \ge 16$.
+The reason is that there is a synchronization point
+at the end of each iteration
+of the loop at layer 2 (Fig.~2).
+The synchronization is an all-to-all 
+communication, whose overhead is proportional to $NT^2$.
+When $NT$ is 4 or 8, the overhead is small but
+it increases quickly as $NT$ increases.
+Performance also drops at matrix sizes that are
+multiples of 1024 because
+GEMM suffers from more memory contention at these sizes,.
+As an example, we profiled the GEMM execution
+at matrix sizes 3968 and 4096 under $NT_C=4$ and $NC=4$.
+The measured bandwidth for packing A (B) are
+1.44(0.89) GB/s at size 3968 and 0.81(0.44) GB/s at size 4096.
+We can see that there is a big performance gap
+in memory bandwidth.
+Due to the organization of the DDR memory hardware,
+The selected tiling factors $M_c$, $N_c$ and $K_c$
+made GEMM more likely to cause memory contention at sizes
+that are multiples of 1024
+because the memory banks are accessed in a non-balanced manner.
 
+In GEMM implementation, different matrix layouts (row-major/column-major)
+are first canonicalized to an implementation defined form
+by optionally swapping the $A$ and $B$ operands in $C=\alpha A B+\beta C$.
+And matrix orientation information (transposed vs. non-transposed)
+is eliminated by means of data packing.
+SCP, which works after these transformations, 
+does not rely on specific matrix layouts or orientations.
+
+As other level-3 routines, e.g., TRSM, TRMM, SYMM and HEMM,
+call GEMM internally, they should also benefit from SCP,
+i.e., the SCP methodology can apply transparently to 
+other BLAS-3 routines as well.
+}}
 
 \subsection{Cache Miss Rate Analysis}\label{subsec:analysis}
 
