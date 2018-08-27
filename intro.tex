@@ -124,8 +124,12 @@ set-associative cache.
 
 To the best of our knowledge, SCP represents
 the first work addressing
-the inter-thread cache conflicts problem on
+the inter-thread cache conflicts problem for GEMM on
 architectures with shared non-LRU caches.
+As other level-3 routines, such as TRSM, TRMM, SYMM and HEMM,
+call GEMM internally, they should also benefit from SCP,
+i.e., the SCP methodology can apply transparently to these
+BLAS-3 routines as well.
 
 The main contributions of this paper are as follows:
 \begin{itemize}
@@ -147,6 +151,7 @@ The main contributions of this paper are as follows:
   under various parallelization configurations, by 
   $2.75\%$ -- $6.91\%$.
 \end{itemize}
+
 
 
 The rest of the paper is organized as follows.
